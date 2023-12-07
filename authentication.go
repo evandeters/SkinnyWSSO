@@ -64,6 +64,23 @@ func login(c *gin.Context) {
 		return
 	}
 
+	prvKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	pubKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	jwtToken := token.NewJWT(prvKey, pubKey)
+	tok, err := jwtToken.Create(time.Hour, "Can be anything")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("TOKEN:", tok)
+	session.Set("token", tok)
+
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
 }
 
