@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"regexp"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -70,14 +69,7 @@ func register(c *gin.Context) {
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
 
-	matched, _ := regexp.MatchString(`^\w{1,16}$`, username)
-
-	if !matched {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Username must not exceed 16 characters and may only contain letters, numbers, or an underscore (_)!"})
-		return
-	}
-
-	message, err := registerUser(username, password, os.Getenv("LDAP_PASSWORD"))
+	message, err := registerUser(username, password, os.Getenv("LDAP_ADMIN_PASSWORD"))
 
 	if err != 0 {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": message})

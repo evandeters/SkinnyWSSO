@@ -14,13 +14,12 @@ services:
       CERT_PATH: "$CERT_PATH"
       KEY_PATH: "$KEY_PATH"
     volumes:
-      - /opt/skinny_wsso:/opt/skinny_wsso
+      - /opt/skinnywsso:/opt/skinny_wsso
     working_dir: /opt/skinny_wsso
     command: 
       - /bin/bash
       - -c 
       - | 
-        git clone https://github.com/evanjd711/SkinnyWSSO.git
         go run .
 
   ldap:
