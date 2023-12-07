@@ -73,7 +73,7 @@
         const userList = document.getElementById('user-list');
         users.users.forEach(user => {
           const listItem = document.createElement('li');
-          listItem.textContent = user.username;
+          listItem.textContent = user;
           userList.appendChild(listItem);
         });
       });
