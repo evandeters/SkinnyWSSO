@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/go-ldap/ldap/v3"
 )
@@ -19,6 +20,10 @@ func authRequired(c *gin.Context) {
 		return
 	}
 	c.Next()
+}
+
+func initCookies(router *gin.Engine) {
+	router.Use(sessions.Sessions("kamino", cookie.NewStore([]byte("kamino")))) // change to secret
 }
 
 func login(c *gin.Context) {

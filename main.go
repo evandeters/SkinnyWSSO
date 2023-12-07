@@ -10,6 +10,8 @@ import (
 func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
+	router.MaxMultipartMemory = 8 << 20 // 8 MiB
+	initCookies(router)
 
 	public := router.Group("/")
 	addPublicRoutes(public)
