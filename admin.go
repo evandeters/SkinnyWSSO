@@ -7,8 +7,7 @@ import (
 )
 
 func listUsers(c *gin.Context) {
-	user, password, hasAuth := c.Request.BasicAuth()
-	if !hasAuth || (user != "admin" && password != os.Getenv("WSSO_ADMIN_PASSWORD")) {
+	if adminAuthRequired(c) != 0 {
 		c.AbortWithStatusJSON(401, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -22,6 +21,11 @@ func listUsers(c *gin.Context) {
 }
 
 func deleteUser(c *gin.Context) {
+	if adminAuthRequired(c) != 0 {
+		c.AbortWithStatusJSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	username := c.Param("username")
 	message, err := deleteLdapUser(username, os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != 0 {
