@@ -1,7 +1,9 @@
 user=$1
-pass=$2
-export WSSO_ADMIN_USERNAME=$user
-export WSSO_ADMIN_PASSWORD=$pass
+wssopass=$2
+ldappass=$3
+export wssoadminusername=$user
+export wssoadminpassword=$wssopass
+export ldapadminpassword=$ldappass
 cd /opt/
 git clone https://github.com/evanjd711/skinnywsso.git
 cd /opt/skinnywsso

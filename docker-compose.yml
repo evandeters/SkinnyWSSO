@@ -12,6 +12,7 @@ services:
     environment:
       LDAP_ADMIN_PASSWORD: "$ldapadminpassword"
       WSSO_ADMIN_PASSWORD: "$wssoadminpassword"
+      WSSO_ADMIN_USERNAME: "$wssoadminusername"
       USE_HTTPS: "true"
       CERT_PATH: "/opt/skinny_wsso/tls/cert.pem"
       KEY_PATH: "/opt/skinny_wsso/tls/key.pem"
