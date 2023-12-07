@@ -92,8 +92,9 @@ func register(c *gin.Context) {
 
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
+	email := jsonData["email"].(string)
 
-	message, err := registerUser(username, password, os.Getenv("LDAP_ADMIN_PASSWORD"))
+	message, err := registerUser(username, password, email, os.Getenv("LDAP_ADMIN_PASSWORD"))
 
 	if err != 0 {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": message})
