@@ -11,17 +11,13 @@ services:
       - skinnywsso
     environment:
       LDAP_ADMIN_PASSWORD: "$ldapadminpassword"
-      USE_HTTPS: "$USE_HTTPS"
-      CERT_PATH: "$CERT_PATH"
-      KEY_PATH: "$KEY_PATH"
-    volumes:
-      - /opt/skinnywsso:/opt/skinny_wsso
+      USE_HTTPS: "true"
+      CERT_PATH: "/opt/skinny_wsso/tls/cert.pem"
+      KEY_PATH: "/opt/skinny_wsso/tls/key.pem"
     working_dir: /opt/skinny_wsso
-    command: 
-      - /bin/bash
-      - -c 
-      - | 
-        go run .
+    volumes:
+      - C:/users/evanj/Documents/SkinnyWSSO/:/opt/skinny_wsso:ro
+    command: /bin/bash -c 'go run .'
 
   ldap:
     image: osixia/openldap:latest
@@ -38,9 +34,8 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_slapd:/etc/ldap/slapd.d
-      - /opt/skinnywsso/:/opt/skinny_wsso:ro
+      - C:/users/evanj/Documents/SkinnyWSSO/:/opt/skinny_wsso:ro
     working_dir: /opt/skinny_wsso
-    #command: ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/skinny_wsso/wsso.ldif
 
 networks:
   skinnywsso:
