@@ -1,0 +1,23 @@
+version: 1
+
+#
+# LDAPv3
+# base <dc=skinny,dc=wsso> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# groups, kamino.labs
+dn: ou=groups,dc=skinny,dc=wsso
+objectClass: organizationalUnit
+ou: groups
+
+# users, kamino.labs
+dn: ou=users,dc=skinny,dc=wsso
+objectClass: organizationalUnit
+ou: users
+
+# events, kamino.labs
+dn: ou=events,dc=skinny,dc=wsso
+objectClass: organizationalUnit
+ou: applications

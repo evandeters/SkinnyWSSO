@@ -6,6 +6,7 @@ services:
     restart: always
     ports:
       - "443:443"
+      - "80:80"
     networks:
       - skinnywsso
     environment:
@@ -37,6 +38,10 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_slapd:/etc/ldap/slapd.d
+      - /opt/skinnywsso/:/opt/skinny_wsso:ro
+    worling_dir: /opt/skinny_wsso
+    command: 
+      - ldapadd -Y EXTERNAL -H ldapi:/// -f ./wsso.ldif
 
 networks:
   skinnywsso:
