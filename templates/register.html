@@ -1,0 +1,49 @@
+{{ define "register.html" }}
+
+<h2>Register</h2>
+
+<form id="register">
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input class="form-control" id="username" name="username" placeholder="Username" type="text" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input class="form-control" id="password" name="password" placeholder="Password" type="password" required>
+    </div>
+    <div class="form-group">
+        <label for="password_confirm">Confirm Password</label>
+        <input class="form-control" id="password_confirm" name="password_confirm" placeholder="Confirm Password" type="password" required>
+    </div>
+    <button type="submit" class="btn btn-default">Register</button>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    document.getElementById('register').addEventListener('submit', function(event) {
+        event.preventDefault();
+        var username = $('#username').val();
+        var password = $('#password').val();
+        var password_confirm = $('#password_confirm').val();
+
+        if (password != password_confirm) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        data = {
+            'username': username,
+            'password': password
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/register',
+            data: JSON.stringify(data),
+            success: function(data) {
+                console.log(data);
+            }
+        });
+    });
+</script>
+    
+{{ end }}

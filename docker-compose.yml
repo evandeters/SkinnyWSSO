@@ -1,0 +1,47 @@
+version: '3.3'
+
+services:
+  SkinnyWSSO:
+    image: golang:latest
+    restart: always
+    ports:
+      - "443:443"
+    networks:
+      - skinnywsso
+    environment:
+      LDAP_ADMIN_PASSWORD: "$ldapadminpassword"
+      USE_HTTPS: "$USE_HTTPS"
+      CERT_PATH: "$CERT_PATH"
+      KEY_PATH: "$KEY_PATH"
+    volumes:
+      - /opt/skinny_wsso:/opt/skinny_wsso
+    working_dir: /opt/skinny_wsso
+    command: 
+      - /bin/bash
+      - -c 
+      - | 
+        git clone https://github.com/evanjd711/SkinnyWSSO.git
+        go run .
+
+  ldap:
+    image: osixia/openldap:latest
+    restart: always
+    ports:
+      - "389:389"
+    environment:
+      LDAP_ORGANISATION: "Skinny WSSO"
+      LDAP_DOMAIN: "skinny.wsso"
+      LDAP_ADMIN_PASSWORD: "$ldapadminpassword"
+    networks:
+      - skinnywsso
+    # LDAP needs a volume to persist data
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_slapd:/etc/ldap/slapd.d
+
+networks:
+  skinnywsso:
+
+volumes:
+  ldap_data:
+  ldap_slapd:
