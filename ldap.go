@@ -7,7 +7,7 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-func registerUser(username string, password string, ldappassword string) (string, int) {
+func registerUser(username string, password string, ldappassword string, email string) (string, int) {
 	l, err := ldap.DialURL("ldap://ldap:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
@@ -35,6 +35,7 @@ func registerUser(username string, password string, ldappassword string) (string
 	addRequest.Attribute("shadowLastChange", []string{"0"})
 	addRequest.Attribute("shadowMax", []string{"99999"})
 	addRequest.Attribute("shadowWarning", []string{"7"})
+	addRequest.Attribute("mail", []string{email})
 	err = l.Add(addRequest)
 
 	if err != nil {
