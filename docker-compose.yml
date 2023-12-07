@@ -34,7 +34,7 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_slapd:/etc/ldap/slapd.d
-      - /opt/skinnywsso/:/opt/skinny_wsso:ro
+      - /opt/skinnywsso/:/opt/skinny_wsso
     working_dir: /opt/skinny_wsso
 
 networks:
