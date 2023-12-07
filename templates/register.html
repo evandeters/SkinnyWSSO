@@ -88,7 +88,7 @@
         }
         $.ajax({
             type: 'POST',
-            url: '/register',
+            url: '/api/users/register',
             data: JSON.stringify(data),
             success: function(data) {
                 console.log(data);
