@@ -40,8 +40,7 @@ services:
       - ldap_slapd:/etc/ldap/slapd.d
       - /opt/skinnywsso/:/opt/skinny_wsso:ro
     working_dir: /opt/skinny_wsso
-    command: 
-      - ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/skinny_wsso/wsso.ldif
+    #command: ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/skinny_wsso/wsso.ldif
 
 networks:
   skinnywsso:
