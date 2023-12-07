@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"os"
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -78,7 +79,7 @@ func deleteLdapUser(username string) (string, int) {
 	return message, 0
 }
 
-func getLdapUsers(ldappassword string) ([]string, int) {
+func getLdapUsers() ([]string, int) {
 	l, err := ldap.DialURL("ldap://ldap:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."

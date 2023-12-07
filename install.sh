@@ -1,3 +1,7 @@
+user=$1
+pass=$2
+export WSSO_ADMIN_USERNAME=$user
+export WSSO_ADMIN_PASSWORD=$pass
 cd /opt/
 git clone https://github.com/evanjd711/skinnywsso.git
 cd /opt/skinnywsso

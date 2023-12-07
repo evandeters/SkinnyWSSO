@@ -23,10 +23,7 @@ func addPublicRoutes(g *gin.RouterGroup) {
 
 func addPrivateRoutes(g *gin.RouterGroup) {
 	g.GET("/logout", logout)
-}
-
-func addAdminRoutes(g *gin.RouterGroup) {
-	g.GET("/admin", func(c *gin.Context) {
+	g.GET("/admin", gin.BasicAuth(gin.Accounts{os.Getenv("WSSO_ADMIN_USERNAME"): os.Getenv("WSSO_ADMIN_PASSWORD")}), func(c *gin.Context) {
 		c.HTML(200, "admin.html", gin.H{})
 	})
 	g.GET("/api/users/list", listUsers)
