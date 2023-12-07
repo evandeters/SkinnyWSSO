@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -22,8 +23,20 @@ func authRequired(c *gin.Context) {
 
 func login(c *gin.Context) {
 	session := sessions.Default(c)
-	username := c.PostForm("username")
-	password := c.PostForm("password")
+	var jsonData map[string]interface{}
+	if err := c.ShouldBindJSON(&jsonData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing fields"})
+		return
+	}
+
+	username := jsonData["username"].(string)
+	password := jsonData["password"].(string)
+
+	// Validate form input
+	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username or password can't be empty."})
+		return
+	}
 
 	l, err := ldap.DialURL("ldap://ldap:389")
 	if err != nil {
@@ -40,7 +53,13 @@ func login(c *gin.Context) {
 	}
 
 	session.Set("id", username)
-	session.Save()
+
+	if err := session.Save(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
 }
 
 func logout(c *gin.Context) {
