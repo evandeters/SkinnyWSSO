@@ -18,6 +18,7 @@ func addPublicRoutes(g *gin.RouterGroup) {
 	})
 	g.POST("/api/users/login", login)
 	g.POST("/api/users/register", register)
+	g.POST("/api/users/verify", verify)
 	g.GET("/api/status", status)
 }
 
