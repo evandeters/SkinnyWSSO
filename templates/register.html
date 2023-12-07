@@ -92,6 +92,11 @@
             data: JSON.stringify(data),
             success: function(data) {
                 console.log(data);
+                location.href = '/login';
+            },
+            error: function(data) {
+                console.log(data);
+                alert('Error creating account.');
             }
         });
     });

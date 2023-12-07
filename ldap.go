@@ -49,3 +49,67 @@ func registerUser(username string, password string, ldappassword string) (string
 	message := "Account created successfully!"
 	return message, 0
 }
+
+func deleteLdapUser(username string, ldappassword string) (string, int) {
+	l, err := ldap.DialURL("ldap://ldap:389")
+	if err != nil {
+		message := "Failed to connect to LDAP server."
+		return message, 1
+	}
+	defer l.Close()
+
+	// Bind with Admin
+	err = l.Bind("cn=admin,dc=skinny,dc=wsso", ldappassword)
+	if err != nil {
+		message := "Failed to bind with LDAP server."
+		return message, 1
+	}
+
+	delRequest := ldap.NewDelRequest("uid="+username+",ou=users,dc=skinny,dc=wsso", nil)
+	err = l.Del(delRequest)
+
+	if err != nil {
+		message := "Failed to delete your account."
+		return message, 1
+	}
+
+	message := "Account deleted successfully!"
+	return message, 0
+}
+
+func getLdapUsers(ldappassword string) ([]string, int) {
+	l, err := ldap.DialURL("ldap://ldap:389")
+	if err != nil {
+		message := "Failed to connect to LDAP server."
+		return []string{message}, 1
+	}
+	defer l.Close()
+
+	// Bind with Admin
+	err = l.Bind("cn=admin,dc=skinny,dc=wsso", ldappassword)
+	if err != nil {
+		message := "Failed to bind with LDAP server."
+		return []string{message}, 1
+	}
+
+	searchRequest := ldap.NewSearchRequest(
+		"ou=users,dc=skinny,dc=wsso",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(objectClass=posixAccount)",
+		[]string{"uid"},
+		nil,
+	)
+
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		message := "Failed to list users."
+		return []string{message}, 1
+	}
+
+	var users []string
+	for _, entry := range sr.Entries {
+		users = append(users, entry.GetAttributeValue("uid"))
+	}
+
+	return users, 0
+}

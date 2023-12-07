@@ -21,6 +21,11 @@ func addPublicRoutes(g *gin.RouterGroup) {
 
 func addPrivateRoutes(g *gin.RouterGroup) {
 	g.GET("/logout", logout)
+	g.GET("/admin", func(c *gin.Context) {
+		c.HTML(200, "admin.html", gin.H{})
+	})
+	g.GET("/api/users/list", listUsers)
+	g.DELETE("/api/users/delete/:username", deleteUser)
 }
 
 func health(c *gin.Context) {
