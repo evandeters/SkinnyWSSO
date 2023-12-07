@@ -16,7 +16,7 @@ services:
       KEY_PATH: "/opt/skinny_wsso/tls/key.pem"
     working_dir: /opt/skinny_wsso
     volumes:
-      - C:/users/evanj/Documents/SkinnyWSSO/:/opt/skinny_wsso:ro
+      - /opt/skinnywsso/:/opt/skinny_wsso:ro
     command: /bin/bash -c 'go run .'
 
   ldap:
@@ -34,7 +34,7 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_slapd:/etc/ldap/slapd.d
-      - C:/users/evanj/Documents/SkinnyWSSO/:/opt/skinny_wsso:ro
+      - /opt/skinnywsso/:/opt/skinny_wsso:ro
     working_dir: /opt/skinny_wsso
 
 networks:
