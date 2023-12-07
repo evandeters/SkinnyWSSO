@@ -5,11 +5,14 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
+	"io/ioutil"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/go-ldap/ldap/v3"
+	"SkinnyWSSO/token"
 )
 
 func authRequired(c *gin.Context) {
@@ -59,11 +62,30 @@ func login(c *gin.Context) {
 
 	session.Set("id", username)
 
-	if err := session.Save(); err != nil {
+	prvKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+	pubKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
 
+	jwtToken := token.NewJWT(prvKey, pubKey)
+	tok, err := jwtToken.Create(time.Hour, "Can be anything")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+	fmt.Println("TOKEN:", tok)
+	session.Set("token", tok)
+
+	if err := session.Save(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
 }
 
