@@ -106,7 +106,7 @@ func register(c *gin.Context) {
 
 func adminAuthRequired(c *gin.Context) int {
 	user, password, hasAuth := c.Request.BasicAuth()
-	if !hasAuth || (user != "admin" && password != os.Getenv("WSSO_ADMIN_PASSWORD")) {
+	if !hasAuth || (user != os.Getenv("WSSO_ADMIN_USERNAME") && password != os.Getenv("WSSO_ADMIN_PASSWORD")) {
 		return 1
 	}
 	return 0

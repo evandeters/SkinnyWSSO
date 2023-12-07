@@ -7,7 +7,7 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-func registerUser(username string, password string, ldappassword string, email string) (string, int) {
+func registerUser(username string, password string, email string) (string, int) {
 	l, err := ldap.DialURL("ldap://ldap:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
@@ -16,7 +16,7 @@ func registerUser(username string, password string, ldappassword string, email s
 	defer l.Close()
 
 	// Bind with Admin
-	err = l.Bind("cn=admin,dc=skinny,dc=wsso", ldappassword)
+	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
 		message := "Failed to bind with LDAP server."
 		return message, 1
@@ -51,7 +51,7 @@ func registerUser(username string, password string, ldappassword string, email s
 	return message, 0
 }
 
-func deleteLdapUser(username string, ldappassword string) (string, int) {
+func deleteLdapUser(username string) (string, int) {
 	l, err := ldap.DialURL("ldap://ldap:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
@@ -60,7 +60,7 @@ func deleteLdapUser(username string, ldappassword string) (string, int) {
 	defer l.Close()
 
 	// Bind with Admin
-	err = l.Bind("cn=admin,dc=skinny,dc=wsso", ldappassword)
+	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
 		message := "Failed to bind with LDAP server."
 		return message, 1
@@ -87,7 +87,7 @@ func getLdapUsers(ldappassword string) ([]string, int) {
 	defer l.Close()
 
 	// Bind with Admin
-	err = l.Bind("cn=admin,dc=skinny,dc=wsso", ldappassword)
+	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
 		message := "Failed to bind with LDAP server."
 		return []string{message}, 1
