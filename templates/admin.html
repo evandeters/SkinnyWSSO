@@ -68,20 +68,15 @@
   <script>
     // Fetch user data and populate the user list
     fetch('/api/users/list')
-        .then(response => response.json())
-        .then(users => {
-            const userList = document.getElementById('user-list');
-
-            if (Array.isArray(users)) {
-                users.forEach(user => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = user.username;
-                    userList.appendChild(listItem);
-                });
-            } else {
-                console.error('Invalid user data');
-            }
+      .then(response => response.json())
+      .then(users => {
+        const userList = document.getElementById('user-list');
+        users.users.forEach(user => {
+          const listItem = document.createElement('li');
+          listItem.textContent = user.username;
+          userList.appendChild(listItem);
         });
+      });
 
     // Handle form submission for deleting a user
     const deleteForm = document.getElementById('delete-user-form');
