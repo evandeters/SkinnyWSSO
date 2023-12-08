@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 	"time"
-	"io/ioutil"
+
+	"SkinnyWSSO/token"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/go-ldap/ldap/v3"
-	"SkinnyWSSO/token"
 )
 
 func authRequired(c *gin.Context) {
@@ -96,6 +97,13 @@ func login(c *gin.Context) {
 func logout(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("id")
+
+	cookie, err := c.Request.Cookie("token")
+
+	if cookie != nil && err == nil {
+		c.SetCookie("token", "", -1, "/", "*", false, true)
+	}
+
 	if id == nil {
 		c.JSON(http.StatusOK, gin.H{"message": "No session."})
 		return
@@ -134,13 +142,13 @@ func register(c *gin.Context) {
 func authFromToken(c *gin.Context) {
 	tok := c.Param("token")
 
-	prvKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	pubKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
+	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
