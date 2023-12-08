@@ -42,6 +42,8 @@ func login(c *gin.Context) {
 	password := jsonData["password"].(string)
 	redirectUrl := c.Request.URL.Query().Encode()
 
+	fmt.Println(redirectUrl)
+
 	// Validate form input
 	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username or password can't be empty."})
@@ -84,7 +86,6 @@ func login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	fmt.Println("TOKEN:", tok)
 	c.SetCookie("token", tok, 86400, "/", "*", false, true)
 
 	if err := session.Save(); err != nil {
