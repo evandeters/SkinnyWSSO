@@ -83,7 +83,7 @@ func login(c *gin.Context) {
 		return
 	}
 	fmt.Println("TOKEN:", tok)
-	session.Set("token", tok)
+	c.SetCookie("token", tok, 86400, "/", "*", false, true)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)
