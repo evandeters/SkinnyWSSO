@@ -10,6 +10,9 @@ func addPublicRoutes(g *gin.RouterGroup) {
 	g.GET("/", func(c *gin.Context) {
 		c.HTML(200, "index.html", gin.H{})
 	})
+	g.GET("/login/redirect", func(c *gin.Context) {
+		c.HTML(200, "login_redirect.html", gin.H{})
+	})
 	g.GET("/login", func(c *gin.Context) {
 		c.HTML(200, "login.html", gin.H{})
 	})

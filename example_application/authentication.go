@@ -8,7 +8,12 @@ import (
 )
 
 func validateAgainstSSO(c *gin.Context) {
-	token, _ := c.Request.Cookie("token")
+	token, err := c.Request.Cookie("token")
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
 
 	resp, err := http.Get("https://localhost/api/users/auth/" + token.Value)
 	if err != nil {

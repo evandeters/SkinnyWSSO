@@ -40,6 +40,7 @@ func login(c *gin.Context) {
 
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
+	redirectUrl := c.Request.URL.Query().Encode()
 
 	// Validate form input
 	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
@@ -91,7 +92,8 @@ func login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
+
+	c.Redirect(http.StatusFound, redirectUrl)
 }
 
 func logout(c *gin.Context) {
