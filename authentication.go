@@ -1,3 +1,5 @@
+// authentication.go
+
 package main
 
 import (
@@ -138,8 +140,7 @@ func register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": message})
-
+	c.Redirect(http.StatusTemporaryRedirect, "/verify")
 }
 
 func authFromToken(c *gin.Context) {
