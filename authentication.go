@@ -132,9 +132,24 @@ func register(c *gin.Context) {
 }
 
 func authFromToken(c *gin.Context) {
-	token := c.Param("token")
-	fmt.Println(token)
-	auth := token.Validate(token)
+	tok := c.Param("token")
+
+	prvKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+	pubKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+
+	jwtToken := token.NewJWT(prvKey, pubKey)
+	fmt.Println(tok)
+	auth, _ := jwtToken.Validate(tok)
 	fmt.Println(auth)
 	if auth != "auth" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token."})
