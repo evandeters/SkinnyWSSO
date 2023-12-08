@@ -8,14 +8,14 @@ import (
 )
 
 func validateAgainstSSO(c *gin.Context) {
-	token, err := c.Request.Cookie("token")
+	token, err := c.Request.Cookie("sample_token")
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	resp, err := http.Get("https://localhost/api/users/auth/" + token.Value)
+	resp, err := http.Get("https://tipoca.sdc.cpp/api/users/auth/" + token.Value)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
@@ -27,7 +27,7 @@ func validateAgainstSSO(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token", token.Value, 86400, "/", "sample.tipoca.sdc.cpp", false, true)
+	c.SetCookie("sample_token", token.Value, 86400, "/", "sample.tipoca.sdc.cpp", false, true)
 
 	c.Next()
 }
