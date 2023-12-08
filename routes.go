@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"SkinnyWSSO/token"
 )
 
 func addPublicRoutes(g *gin.RouterGroup) {
@@ -16,6 +17,7 @@ func addPublicRoutes(g *gin.RouterGroup) {
 	g.GET("/register", func(c *gin.Context) {
 		c.HTML(200, "register.html", gin.H{})
 	})
+	g.GET("/api/users/auth/:token", )
 	g.POST("/api/users/login", login)
 	g.POST("/api/users/register", register)
 	g.POST("/api/users/verify", verify)

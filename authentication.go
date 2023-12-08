@@ -76,7 +76,7 @@ func login(c *gin.Context) {
 	}
 
 	jwtToken := token.NewJWT(prvKey, pubKey)
-	tok, err := jwtToken.Create(time.Hour, "Can be anything")
+	tok, err := jwtToken.Create(time.Hour, "auth")
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
@@ -129,6 +129,18 @@ func register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": message})
 
+}
+
+func authFromToken(c *gin.Context) {
+	token := c.Param("token")
+	fmt.Println(token)
+	auth := token.Validate(token)
+	fmt.Println(auth)
+	if auth != "auth" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token."})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
 }
 
 func adminAuthRequired(c *gin.Context) int {
