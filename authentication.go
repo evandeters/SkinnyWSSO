@@ -64,11 +64,13 @@ func login(c *gin.Context) {
 
 	prvKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
 	if err != nil {
+		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
 	pubKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
 	if err != nil {
+		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
@@ -76,6 +78,7 @@ func login(c *gin.Context) {
 	jwtToken := token.NewJWT(prvKey, pubKey)
 	tok, err := jwtToken.Create(time.Hour, "Can be anything")
 	if err != nil {
+		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
@@ -83,6 +86,7 @@ func login(c *gin.Context) {
 	session.Set("token", tok)
 
 	if err := session.Save(); err != nil {
+		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
