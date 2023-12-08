@@ -40,7 +40,7 @@ func login(c *gin.Context) {
 
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
-	redirectUrl := c.Request.URL.Query().Encode()
+	redirectUrl := jsonData["redirectURL"].(string)
 
 	fmt.Println(redirectUrl)
 
