@@ -8,7 +8,6 @@ import (
     "fmt"
     "github.com/gin-gonic/gin"
     _ "github.com/mattn/go-sqlite3"
-    "golang.org/x/crypto/bcrypt"
     "gopkg.in/gomail.v2"
 	"net/http"
     "math/rand"
@@ -37,7 +36,6 @@ func confirmation(c *gin.Context) {
 	// Parse form data
 	username := c.PostForm("username")
 	email := c.PostForm("email")
-	password := c.PostForm("password")
 
 	// Generate a random verification code
 	verificationCode := generateVerificationCode()
@@ -53,7 +51,7 @@ func confirmation(c *gin.Context) {
 	}
 
 	// Save the user in the database
-	err = saveUser(user)
+	err := saveUser(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
