@@ -40,7 +40,7 @@ func login(c *gin.Context) {
 
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
-	redirectUrl := jsonData["redirectURL"].(string)
+	redirectUrl := jsonData["redirectUrl"].(string)
 
 	fmt.Println(redirectUrl)
 
@@ -86,7 +86,7 @@ func login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	c.SetCookie("token", tok, 86400, "/", "*", false, true)
+	c.SetCookie("token", tok, 86400, "/", "tipoca.sdc.cpp", false, true)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)
