@@ -27,6 +27,8 @@ func validateAgainstSSO(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("token", token.Value, 86400, "/", "sample.tipoca.sdc.cpp", false, true)
+
 	c.Next()
 }
 
