@@ -1,7 +1,10 @@
+// authentication.go
+
 package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -64,13 +67,13 @@ func login(c *gin.Context) {
 
 	session.Set("id", username)
 
-	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	prvKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
+	pubKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
@@ -84,6 +87,7 @@ func login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
+	c.SetCookie("token", tok, 86400, "/", "tipoca.sdc.cpp", false, true)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)
@@ -137,6 +141,11 @@ func register(c *gin.Context) {
 	password := jsonData["password"].(string)
 	email := jsonData["email"].(string)
 
+	fmt.Println("Received registration request:")
+	fmt.Println("Username:", username)
+	fmt.Println("Password:", password)
+	fmt.Println("Email:", email)
+
 	message, err := registerUser(username, password, email)
 
 	if err != 0 {
@@ -144,8 +153,7 @@ func register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": message})
-
+	c.Redirect(http.StatusTemporaryRedirect, "/verify")
 }
 
 func authFromToken(c *gin.Context) {
