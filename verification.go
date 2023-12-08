@@ -2,25 +2,25 @@
 
 package main
 
-
 import (
-    "database/sql"
-    "fmt"
-    "github.com/gin-gonic/gin"
-    _ "github.com/mattn/go-sqlite3"
-    "gopkg.in/gomail.v2"
+	"database/sql"
+	"fmt"
+	"math/rand"
 	"net/http"
-    "math/rand"
-    "time"
+	"net/smtp"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
-    dbFile                     = "./verify.db" // SQLite database file
-    smtpUsername               = "kaminoverify@gmail.com"
-    smtpPassword               = "#ad6pYEHX8q@!b3A"
-    smtpHost                   = "smtp.gmail.com"
-    smtpPort                   = 587
-    verificationCodeExpireDuration = 15 * time.Minute // Adjust as needed
+	dbFile                         = "./verify.db" // SQLite database file
+	smtpUsername                   = "kaminoverify@gmail.com"
+	smtpPassword                   = "#ad6pYEHX8q@!b3A"
+	smtpHost                       = "smtp.gmail.com"
+	smtpPort                       = 587
+	verificationCodeExpireDuration = 15 * time.Minute // Adjust as needed
 )
 
 func initializeDatabase() error {
@@ -56,11 +56,11 @@ func initializeDatabase() error {
 	if count == 0 {
 		// Insert dummy data
 		dummyUser := User{
-			Username:          "test",
-			Email:             "test@test.com",
-			VerificationCode:  "123456",
+			Username:           "test",
+			Email:              "test@test.com",
+			VerificationCode:   "123456",
 			VerificationExpiry: time.Now().Add(verificationCodeExpireDuration),
-			IsVerified:        true,
+			IsVerified:         true,
 		}
 
 		_, err := db.Exec(`
@@ -78,11 +78,11 @@ func initializeDatabase() error {
 
 // User struct to represent a registered user
 type User struct {
-	Username          string
-	Email             string
-	VerificationCode  string
+	Username           string
+	Email              string
+	VerificationCode   string
 	VerificationExpiry time.Time
-	IsVerified        bool
+	IsVerified         bool
 }
 
 func confirmation(c *gin.Context) {
@@ -95,11 +95,11 @@ func confirmation(c *gin.Context) {
 
 	// Save user data in the database
 	user := User{
-		Username:          username,
-		Email:             email,
-		VerificationCode:  verificationCode,
+		Username:           username,
+		Email:              email,
+		VerificationCode:   verificationCode,
 		VerificationExpiry: time.Now().Add(verificationCodeExpireDuration),
-		IsVerified:        false,
+		IsVerified:         false,
 		// Set other fields as needed
 	}
 
@@ -118,23 +118,27 @@ func confirmation(c *gin.Context) {
 }
 
 func sendVerificationEmail(user User) {
-    // Set up the email message
-    m := gomail.NewMessage()
-    m.SetHeader("From", "noreply@example.com")
-    m.SetHeader("To", user.Email)
-    m.SetHeader("Subject", "Email Verification")
-    m.SetBody("text/plain", fmt.Sprintf("Your verification code is: %s", user.VerificationCode))
+	from := "skinnywsso@gmail.com"
+	pass := "bzei uxxz ecef sdmi"
+	to := user.Email
 
-    // Set up the SMTP client
-    d := gomail.NewDialer(smtpHost, smtpPort, smtpUsername, smtpPassword)
+	body := fmt.Sprintf("Your verification code is: %s", user.VerificationCode)
 
-    // Send the email
-    if err := d.DialAndSend(m); err != nil {
-        fmt.Println("Error sending email:", err)
-        return
-    }
+	msg := "From: " + from + "\n" +
+		"To: " + to + "\n" +
+		"Subject: Email Verification\n\n" +
+		body
 
-    fmt.Println("Email sent successfully to:", user.Email)
+	err := smtp.SendMail("smtp.gmail.com:587",
+		smtp.PlainAuth("", from, pass, "smtp.gmail.com"),
+		from, []string{to}, []byte(msg))
+
+	if err != nil {
+		fmt.Println("Error sending email:", err)
+		return
+	}
+
+	fmt.Println("Email sent successfully to:", user.Email)
 }
 
 func verify(c *gin.Context) {
@@ -178,7 +182,7 @@ func generateVerificationCode() string {
 }
 
 func isValidVerificationCode(user User, enteredCode string) bool {
-    return user.VerificationCode == enteredCode && time.Now().Before(user.VerificationExpiry)
+	return user.VerificationCode == enteredCode && time.Now().Before(user.VerificationExpiry)
 }
 
 func saveUser(user User) error {

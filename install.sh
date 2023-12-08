@@ -6,6 +6,7 @@ export wssoadminpassword=$wssopass
 export ldapadminpassword=$ldappass
 export jwtprivatekey=/opt/skinnywsso/tls/priv.pem
 export jwtpublickey=/opt/skinnywsso/tls/pub.pem
+export CGO_CFLAGS="-g -O2 -Wno-return-local-addr"
 cd /opt/
 git clone https://github.com/evanjd711/skinnywsso.git
 cd /opt/skinnywsso
