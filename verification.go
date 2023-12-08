@@ -28,7 +28,6 @@ var (
 type User struct {
 	Username          string
 	Email             string
-	PasswordHash      string
 	VerificationCode  string
 	VerificationExpiry time.Time
 	IsVerified        bool
@@ -40,13 +39,6 @@ func confirmation(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 
-	// Hash the password before storing it in the database
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
-
 	// Generate a random verification code
 	verificationCode := generateVerificationCode()
 
@@ -54,7 +46,6 @@ func confirmation(c *gin.Context) {
 	user := User{
 		Username:          username,
 		Email:             email,
-		PasswordHash:      string(passwordHash),
 		VerificationCode:  verificationCode,
 		VerificationExpiry: time.Now().Add(verificationCodeExpireDuration),
 		IsVerified:        false,
@@ -89,7 +80,10 @@ func sendVerificationEmail(user User) {
     // Send the email
     if err := d.DialAndSend(m); err != nil {
         fmt.Println("Error sending email:", err)
+        return
     }
+
+    fmt.Println("Email sent successfully to:", user.Email)
 }
 
 func verify(c *gin.Context) {
@@ -133,7 +127,6 @@ func generateVerificationCode() string {
 }
 
 func isValidVerificationCode(user User, enteredCode string) bool {
-    // Check if the entered verification code matches the user's code
     return user.VerificationCode == enteredCode && time.Now().Before(user.VerificationExpiry)
 }
 
@@ -145,12 +138,14 @@ func saveUser(user User) error {
 	defer db.Close()
 
 	_, err = db.Exec(`
-		INSERT INTO users (username, email, password_hash, verification_code, verification_expiry, is_verified)
-		VALUES (?, ?, ?, ?, ?, ?)
-	`, user.Username, user.Email, user.PasswordHash, user.VerificationCode, user.VerificationExpiry, user.IsVerified)
+		INSERT INTO users (username, email, verification_code, verification_expiry, is_verified)
+		VALUES (?, ?, ?, ?, ?)
+	`, user.Username, user.Email, user.VerificationCode, user.VerificationExpiry, false)
 
 	return err
 }
+
+
 
 func getUserByEmail(email string) (User, error) {
 	db, err := sql.Open("sqlite3", dbFile)
@@ -161,11 +156,11 @@ func getUserByEmail(email string) (User, error) {
 
 	user := User{}
 	err = db.QueryRow(`
-		SELECT id, username, email, password_hash, verification_code, verification_expiry, is_verified
+		SELECT id, username, email, verification_code, verification_expiry, is_verified
 		FROM users
 		WHERE email = ?
 	`, email).Scan(
-		&user.Username, &user.Email, &user.PasswordHash, &user.VerificationCode, &user.VerificationExpiry, &user.IsVerified,
+		&user.Username, &user.Email, &user.VerificationCode, &user.VerificationExpiry, &user.IsVerified,
 	)
 
 	return user, err
