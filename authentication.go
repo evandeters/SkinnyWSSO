@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -40,8 +41,6 @@ func login(c *gin.Context) {
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
 	redirectUrl := jsonData["redirectUrl"].(string)
-
-	fmt.Println(redirectUrl)
 
 	// Validate form input
 	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
@@ -85,13 +84,21 @@ func login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	c.SetCookie("sample_token", tok, 86400, "/", "tipoca.sdc.cpp", false, true)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
+
+	resp, err := http.PostForm("https://sample.tipoca.sdc.cpp:8080/auth", url.Values{"token": {tok}})
+
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+	defer resp.Body.Close()
 
 	c.Redirect(http.StatusFound, redirectUrl)
 }

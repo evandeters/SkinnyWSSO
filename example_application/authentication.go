@@ -32,6 +32,32 @@ func validateAgainstSSO(c *gin.Context) {
 	c.Next()
 }
 
+func tokenAuth(c *gin.Context) {
+	var jsonData map[string]interface{}
+	if err := c.ShouldBindJSON(&jsonData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing fields"})
+		return
+	}
+
+	token := jsonData["token"].(string)
+
+	resp, err := http.Get("https://tipoca.sdc.cpp/api/users/auth/" + token)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	c.SetCookie("sample_token", token, 86400, "/", "sample.tipoca.sdc.cpp", false, true)
+
+	c.Redirect(http.StatusFound, "https://sample.tipoca.sdc.cpp:8080/status")
+}
+
 func logout(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("id")
