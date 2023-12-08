@@ -145,7 +145,8 @@ func register(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusTemporaryRedirect, "/verify")
+	fmt.Println("Redirecting to /verify")
+	c.Redirect(http.StatusSeeOther, "/verify")
 }
 
 func authFromToken(c *gin.Context) {

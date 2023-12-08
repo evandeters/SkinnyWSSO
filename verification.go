@@ -23,6 +23,42 @@ var (
 	verificationCodeExpireDuration = 15 * time.Minute // Adjust as needed
 )
 
+func verify(c *gin.Context) {
+	fmt.Println("Got to verify")
+
+	// Parse form data
+	email := c.PostForm("email")
+	verificationCode := c.PostForm("verificationCode")
+
+	fmt.Println("Received verification request:")
+	fmt.Println("Email:", email)
+	fmt.Println("Verification Code:", verificationCode)
+
+	// Retrieve the user from the database based on email
+	user, err := getUserByEmail(email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	// Check if the verification code matches and has not expired
+	if isValidVerificationCode(user, verificationCode) {
+		// Mark the user as verified in the database
+		user.IsVerified = true
+		err = updateUser(user)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			return
+		}
+
+		// You can redirect the user to a success page or return a success JSON response
+		c.JSON(200, gin.H{"message": "Email verification successful."})
+	} else {
+		// You can redirect the user to a failure page or return a failure JSON response
+		c.JSON(401, gin.H{"error": "Invalid or expired verification code."})
+	}
+}
+
 func initializeDatabase() error {
 	db, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
@@ -114,7 +150,7 @@ func confirmation(c *gin.Context) {
 	sendVerificationEmail(user)
 
 	// You can redirect the user to a confirmation page or return a success message
-	c.JSON(200, gin.H{"message": "Registration successful. Please check your email for verification."})
+	c.JSON(200, gin.H{"message": "Registration successful. Please check your email for verification.", "user": user})
 }
 
 func sendVerificationEmail(user User) {
@@ -139,36 +175,6 @@ func sendVerificationEmail(user User) {
 	}
 
 	fmt.Println("Email sent successfully to:", user.Email)
-}
-
-func verify(c *gin.Context) {
-	// Parse form data
-	email := c.PostForm("email")
-	verificationCode := c.PostForm("verificationCode")
-
-	// Retrieve the user from the database based on email
-	user, err := getUserByEmail(email)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
-
-	// Check if the verification code matches and has not expired
-	if isValidVerificationCode(user, verificationCode) {
-		// Mark the user as verified in the database
-		user.IsVerified = true
-		err = updateUser(user)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-			return
-		}
-
-		// You can redirect the user to a success page or return a success JSON response
-		c.JSON(200, gin.H{"message": "Email verification successful."})
-	} else {
-		// You can redirect the user to a failure page or return a failure JSON response
-		c.JSON(401, gin.H{"error": "Invalid or expired verification code."})
-	}
 }
 
 func generateVerificationCode() string {
