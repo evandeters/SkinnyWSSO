@@ -16,11 +16,11 @@ services:
       JWT_PRIVATE_KEY: "$jwtprivatekey"
       JWT_PUBLIC_KEY: "$jwtpublickey"
       USE_HTTPS: "true"
-      CERT_PATH: "/opt/skinny_wsso/tls/cert.pem"
-      KEY_PATH: "/opt/skinny_wsso/tls/key.pem"
-    working_dir: /opt/skinny_wsso
+      CERT_PATH: "/opt/skinnywsso/tls/cert.pem"
+      KEY_PATH: "/opt/skinnywsso/tls/key.pem"
+    working_dir: /opt/skinnywsso
     volumes:
-      - /opt/skinnywsso/:/opt/skinny_wsso:ro
+      - /opt/skinnywsso/:/opt/skinnywsso
     command: /bin/bash -c 'go run .'
 
   ldap:
@@ -38,8 +38,8 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_slapd:/etc/ldap/slapd.d
-      - /opt/skinnywsso/:/opt/skinny_wsso
-    working_dir: /opt/skinny_wsso
+      - /opt/skinnywsso/:/opt/skinnywsso
+    working_dir: /opt/skinnywsso
 
 networks:
   skinnywsso:
