@@ -23,6 +23,59 @@ var (
     verificationCodeExpireDuration = 15 * time.Minute // Adjust as needed
 )
 
+func initializeDatabase() error {
+	db, err := sql.Open("sqlite3", dbFile)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	// Execute a query to create the table if it doesn't exist
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS users (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			username TEXT,
+			email TEXT,
+			verification_code TEXT,
+			verification_expiry DATETIME,
+			is_verified BOOLEAN
+		);
+	`)
+	if err != nil {
+		return err
+	}
+
+	// Check if the table is empty (you might want to refine this check based on your needs)
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	if err != nil {
+		return err
+	}
+
+	// If the table is empty, insert dummy data
+	if count == 0 {
+		// Insert dummy data
+		dummyUser := User{
+			Username:          "test",
+			Email:             "test@test.com",
+			VerificationCode:  "123456",
+			VerificationExpiry: time.Now().Add(verificationCodeExpireDuration),
+			IsVerified:        true,
+		}
+
+		_, err := db.Exec(`
+			INSERT INTO users (username, email, verification_code, verification_expiry, is_verified)
+			VALUES (?, ?, ?, ?, ?)
+		`, dummyUser.Username, dummyUser.Email, dummyUser.VerificationCode, dummyUser.VerificationExpiry, dummyUser.IsVerified)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // User struct to represent a registered user
 type User struct {
 	Username          string
@@ -142,8 +195,6 @@ func saveUser(user User) error {
 
 	return err
 }
-
-
 
 func getUserByEmail(email string) (User, error) {
 	db, err := sql.Open("sqlite3", dbFile)
