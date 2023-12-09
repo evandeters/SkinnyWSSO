@@ -129,11 +129,6 @@ func register(c *gin.Context) {
 	password := jsonData["password"].(string)
 	email := jsonData["email"].(string)
 
-	fmt.Println("Received registration request:")
-	fmt.Println("Username:", username)
-	fmt.Println("Password:", password)
-	fmt.Println("Email:", email)
-
 	message, err := registerUser(username, password, email)
 
 	if err != 0 {
@@ -141,8 +136,7 @@ func register(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Redirecting to /verify")
-	c.Redirect(http.StatusSeeOther, "/verify")
+	c.JSON(http.StatusOK, gin.H{"message": "Account created successfully!"})
 }
 
 func authFromToken(c *gin.Context) {
