@@ -27,7 +27,6 @@ pipeline {
             steps {
                 sshagent(['ssh_key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no skinnywsso-dev 'echo $LDAP_ADMIN_PASSWORD'
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'systemctl stop skinnywsso.service'
                         scp -o StrictHostKeyChecking=no SkinnyWSSO skinnywsso-dev:/opt/skinnywsso/
                         scp -o StrictHostKeyChecking=no -r templates/ skinnywsso-dev:/opt/skinnywsso/
