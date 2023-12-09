@@ -50,7 +50,7 @@ pipeline {
     }
     post {
         success {
-            ./skinnywsso
+            sh './skinnywsso'
         }
     }
 }
