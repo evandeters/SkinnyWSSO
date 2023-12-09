@@ -43,7 +43,7 @@ pipeline {
                     openssl genrsa -out $JWT_PRIVATE_KEY 2048
                     openssl rsa -in $JWT_PRIVATE_KEY -pubout -out $JWT_PUBLIC_KEY
                     cd /opt/skinnywsso
-                    go run .
+                    go build
                 '''
             }
         }
