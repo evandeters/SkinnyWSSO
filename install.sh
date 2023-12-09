@@ -4,7 +4,6 @@ export wssoadminpassword=$2
 export ldapadminpassword=$3
 export jwtprivatekey=/opt/skinnywsso/tls/priv.pem
 export jwtpublickey=/opt/skinnywsso/tls/pub.pem
-export CGO_CFLAGS="-g -O2 -Wno-return-local-addr"
 orig_dir=$(pwd)
 cp -R $orig_dir /opt/skinnywsso
 cd /opt/skinnywsso
