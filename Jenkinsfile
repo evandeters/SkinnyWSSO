@@ -28,7 +28,8 @@ pipeline {
                 sshagent(['ssh_key']) {
                     sh 'ssh -o StrictHostKeyChecking=no skinnywsso-dev ls'
             }
-        }
+            }
+        }   
 
         stage('Release') {
             when {
