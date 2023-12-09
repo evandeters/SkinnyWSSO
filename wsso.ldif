@@ -7,14 +7,6 @@ version: 1
 # requesting: ALL
 #
 
-# skinny.wsso
-dn: dc=skinny,dc=wsso
-objectClass: top
-objectClass: dcObject
-objectClass: organization
-o: skinny.wsso
-dc: skinny
-
 # groups, skinny.wsso
 dn: ou=groups,dc=skinny,dc=wsso
 objectClass: organizationalUnit

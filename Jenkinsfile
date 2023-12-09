@@ -16,8 +16,8 @@ pipeline {
             steps {
                     sh'''
                         rm -rf /var/lib/ldap/*
-                        systemctl restart slapd
-                        ldapadd -Y EXTERNAL -H ldapi:/// -f ./wsso.ldif
+                        cp -R /root/ldap_backup/* /var/lib/ldap/
+                        ldapadd -x -w $WSSO_ADMIN_PWD -H ldapi:/// -D 'cn=admin,dc=skinny,dc=wsso' -f ./wsso.ldif
                     '''
                 }
         }
