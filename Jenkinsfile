@@ -38,7 +38,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    pritnenv
+                    printenv
                     go test -v ./...
                 '''
             }
