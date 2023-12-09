@@ -27,13 +27,14 @@ pipeline {
             steps {
                 sshagent(['ssh_key']) {
                     sh '''
+                        ssh -o StrictHostKeyChecking=no skinnywsso-dev 'echo $LDAP_ADMIN_PASSWORD'
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'systemctl stop skinnywsso.service'
                         scp -o StrictHostKeyChecking=no SkinnyWSSO skinnywsso-dev:/opt/skinnywsso/
                         scp -o StrictHostKeyChecking=no -r templates/ skinnywsso-dev:/opt/skinnywsso/
                         scp -o StrictHostKeyChecking=no wsso.ldif skinnywsso-dev:/opt/skinnywsso/
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'systemctl start skinnywsso.service'
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'rm -rf /var/lib/ldap/*; cp -R /root/ldap_backup/* /var/lib/ldap/; chown -R openldap:openldap /var/lib/ldap/; systemctl restart slapd'
-                        ssh -o StrictHostKeyChecking=no skinnywsso-dev 'ldapadd -x -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD -H ldapi:/// -f /opt/skinnywsso/wsso.ldif'
+                        ssh -o StrictHostKeyChecking=no skinnywsso-dev 'ldapadd -x -H ldapi:/// -f /opt/skinnywsso/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD'
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'cd /opt/skinnywsso/; nohup ./SkinnyWSSO > /opt/skinnywsso/log &'
                     '''
             }
