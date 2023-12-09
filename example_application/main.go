@@ -22,7 +22,7 @@ func main() {
 	addPrivateRoutes(private)
 
 	if os.Getenv("USE_HTTPS") == "true" {
-		log.Fatalln(router.RunTLS(":8080", os.Getenv("/opt/skinnywsso/tls/cert.pem"), os.Getenv("/opt/skinnywsso/tls/key.pem")))
+		log.Fatalln(router.RunTLS(":8080", "/opt/skinnywsso/tls/cert.pem", "/opt/skinnywsso/tls/key.pem"))
 	} else {
 		log.Fatalln(router.Run(":8080"))
 	}

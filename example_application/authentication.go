@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -15,6 +16,7 @@ func validateAgainstSSO(c *gin.Context) {
 		return
 	}
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	resp, err := http.Get("https://tipoca.sdc.cpp/api/users/auth/" + token.Value)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
