@@ -9,11 +9,8 @@ pipeline {
             agent {
                 docker { 
                     image 'osixia/openldap:latest'
-                    args '--network=skinnywsso -p 389:389 -p 636:636 -v /data/ldap:/var/lib/ldap -v /data/slapd.d:/etc/ldap/slapd.d -e LDAP_ORGANISATION="Skinny WSSO" -e LDAP_DOMAIN="skinny.wsso" -e LDAP_ADMIN_PASSWORD="$WSSO_ADMIN_PWD"'
+                    args '--network=skinnywsso -p 389:389 -p 636:636 -v ldap_data:/var/lib/ldap -v ldap_slapd:/etc/ldap/slapd.d -e LDAP_ORGANISATION="Skinny WSSO" -e LDAP_DOMAIN="skinny.wsso" -e LDAP_ADMIN_PASSWORD="$WSSO_ADMIN_PWD"'
                 }
-            }
-            steps {
-                sh('chmod +x ./install.sh; ./install.sh $WSSO_ADMIN_USR $WSSO_ADMIN_PSW $WSSO_ADMIN_PSW')
             }
         }
 
