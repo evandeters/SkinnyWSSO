@@ -18,6 +18,7 @@ pipeline {
                         rm -rf /var/lib/ldap/* 
                         cp -R /root/ldap_backup/* /var/lib/ldap/
                         chown -R openldap:openldap /var/lib/ldap/
+                        systemctl restart slapd
                         ldapadd -x -w $WSSO_ADMIN_PSW -H ldapi:/// -D cn=admin,dc=skinny,dc=wsso -f ./wsso.ldif
                     '''
                 }
