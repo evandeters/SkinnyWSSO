@@ -14,11 +14,7 @@ pipeline {
     stages {
         stage('LDAP') {
             steps {
-                    sh'''
-                        rm -rf /var/lib/ldap/*
-                        cp -R /root/ldap_backup/* /var/lib/ldap/
-                        ldapadd -x -w $WSSO_ADMIN_PWD -H ldapi:/// -D 'cn=admin,dc=skinny,dc=wsso' -f ./wsso.ldif
-                    '''
+                    sh('rm -rf /var/lib/ldap/*; cp -R /root/ldap_backup/* /var/lib/ldap/; ldapadd -x -w $WSSO_ADMIN_PWD -H ldapi:/// -D "cn=admin,dc=skinny,dc=wsso" -f ./wsso.ldif')
                 }
         }
 
