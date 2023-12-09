@@ -20,6 +20,24 @@ pipeline {
             }
         }
 
+        stage('Prepare Tests') {
+            steps {
+                sh '''
+                    rm -rf /var/lib/ldap/*
+                    cp -R /root/ldap_backup/* /var/lib/ldap/
+                    chown -R openldap:openldap /var/lib/ldap/
+                    systemctl restart slapd
+                '''
+                sh 'ldapadd -x -H ldapi:/// -f ~/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $WSSO_ADMIN_PSW'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'go test -v ./...'
+            }
+        }
+
         stage('Deploy to Dev') {
             when {
                 branch 'development'
@@ -37,7 +55,7 @@ pipeline {
                     sh 'ssh -o StrictHostKeyChecking=no skinnywsso-dev "ldapadd -x -H ldapi:/// -f /opt/skinnywsso/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $WSSO_ADMIN_PSW"'
             }
             }
-        }   
+        }
 
         stage('Release') {
             when {
