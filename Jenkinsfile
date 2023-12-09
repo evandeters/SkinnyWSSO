@@ -36,7 +36,6 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'rm -rf /var/lib/ldap/*; cp -R /root/ldap_backup/* /var/lib/ldap/; chown -R openldap:openldap /var/lib/ldap/; systemctl restart slapd'
                     '''
                     sh 'ssh -o StrictHostKeyChecking=no skinnywsso-dev "ldapadd -x -H ldapi:/// -f /opt/skinnywsso/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $WSSO_ADMIN_PSW"'
-                    sh  'ssh -o StrictHostKeyChecking=no skinnywsso-dev "cd /opt/skinnywsso/; nohup ./SkinnyWSSO > /opt/skinnywsso/log &"'
             }
             }
         }   
