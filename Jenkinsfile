@@ -11,6 +11,9 @@ pipeline {
                     image 'osixia/openldap:latest'
                     args '--network=skinnywsso -p 389:389 -p 636:636 -v ldap_data:/var/lib/ldap -v ldap_slapd:/etc/ldap/slapd.d -e LDAP_ORGANISATION="Skinny WSSO" -e LDAP_DOMAIN="skinny.wsso" -e LDAP_ADMIN_PASSWORD="$WSSO_ADMIN_PWD"'
                 }
+                steps {
+                    sh('slapcat')
+                }
             }
         }
 
