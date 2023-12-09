@@ -20,6 +20,16 @@ pipeline {
             }
         }
 
+        stage('Deploy to Dev') {
+            when {
+                branch 'development'
+            }
+            steps {
+                sshagent(['ssh_key']) {
+                    sh 'ssh -o StrictHostKeyChecking=no skinnywsso-dev ls'
+            }
+        }
+
         stage('Release') {
             when {
                 tag 'v*'
