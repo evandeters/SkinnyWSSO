@@ -24,6 +24,11 @@ pipeline {
         stage('Prepare Tests') {
             steps {
                 sh '''
+                    export jwtprivatekey=/var/jenkins/workspace/SkinnyWSSO/priv.pem
+                    export jwtpublickey=/var/jenkins/workspace/SkinnyWSSO/pub.pem
+                    openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 -nodes -subj "/C=US/ST=CA/L=Pomona/O=SkinnyWSSO/OU=SkinnyWSSO/CN=skinny.wsso"
+                    openssl genrsa -out $jwtprivatekey 2048
+                    openssl rsa -in $jwtprivatekey -pubout -out $jwtpublickey
                     rm -rf /var/lib/ldap/*
                     cp -R /root/ldap_backup/* /var/lib/ldap/
                     chown -R openldap:openldap /var/lib/ldap/
@@ -34,6 +39,10 @@ pipeline {
         }
 
         stage('Unit Tests') {
+            environment {
+                JWT_PRIVATE_KEY = '/var/jenkins/workspace/SkinnyWSSO/priv.pem'
+                JWT_PUBLIC_KEY = '/var/jenkins/workspace/SkinnyWSSO/pub.pem'
+            }
             steps {
                 sh '''
                     go test -v

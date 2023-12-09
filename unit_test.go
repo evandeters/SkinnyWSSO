@@ -71,7 +71,7 @@ func TestLogoutWithoutAuth(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	// Check the response body is what we expect.
-	expected := `{"error":"Unauthorized"}`
+	expected := `{"message":"No session."}`
 	assert.Equal(t, expected, w.Body.String())
 
 }
