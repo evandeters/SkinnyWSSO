@@ -17,7 +17,6 @@ func registerUser(username string, password string, email string) (string, int) 
 	defer l.Close()
 
 	// Bind with Admin
-	fmt.Println(os.Getenv("LDAP_ADMIN_PASSWORD"))
 	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
 		message := "Failed to bind with LDAP server."
