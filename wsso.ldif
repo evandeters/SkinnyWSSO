@@ -7,17 +7,25 @@ version: 1
 # requesting: ALL
 #
 
-# groups, kamino.labs
+# skinny.wsso
+dn: dc=skinny,dc=wsso
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: skinny.wsso
+dc: skinny
+
+# groups, skinny.wsso
 dn: ou=groups,dc=skinny,dc=wsso
 objectClass: organizationalUnit
 ou: groups
 
-# users, kamino.labs
+# users, skinny.wsso
 dn: ou=users,dc=skinny,dc=wsso
 objectClass: organizationalUnit
 ou: users
 
-# events, kamino.labs
+# events, skinny.wsso
 dn: ou=events,dc=skinny,dc=wsso
 objectClass: organizationalUnit
 ou: applications

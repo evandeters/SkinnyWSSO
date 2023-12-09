@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"os"
+	"strings"
 
 	"github.com/go-ldap/ldap/v3"
 )
 
 func registerUser(username string, password string, email string) (string, int) {
-	l, err := ldap.DialURL("ldap://ldap:389")
+	l, err := ldap.DialURL("ldap://host.docker.internal:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
 		return message, 1
