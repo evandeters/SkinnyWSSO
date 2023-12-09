@@ -33,8 +33,14 @@ pipeline {
         }
 
         stage('Unit Tests') {
+            environment {
+                LDAP_ADMIN_PASSWORD = credentials('ldap_admin_password')
+            }
             steps {
-                sh 'go test -v ./...'
+                sh '''
+                    pritnenv
+                    go test -v ./...
+                '''
             }
         }
 
