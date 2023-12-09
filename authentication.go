@@ -3,11 +3,8 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -44,7 +41,6 @@ func login(c *gin.Context) {
 
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
-	redirectUrl := jsonData["redirectUrl"].(string)
 
 	// Validate form input
 	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
@@ -68,13 +64,13 @@ func login(c *gin.Context) {
 
 	session.Set("id", username)
 
-	prvKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	pubKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
+	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
@@ -88,25 +84,15 @@ func login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	c.SetCookie("token", tok, 86400, "/", "tipoca.sdc.cpp", false, true)
+	c.SetCookie("token", tok, 86400, "/", "tipoca.dev.gfed", false, true)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
-	resp, err := http.PostForm("https://sample.tipoca.sdc.cpp:8080/auth", url.Values{"token": {tok}})
-
-	if err != nil {
-		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
-		return
-	}
-	defer resp.Body.Close()
-
-	c.Redirect(http.StatusFound, redirectUrl)
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
 }
 
 func logout(c *gin.Context) {

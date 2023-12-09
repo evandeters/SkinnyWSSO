@@ -71,12 +71,10 @@
         event.preventDefault();
         var username = $('#username').val();
         var password = $('#password').val();
-        var redirectUrl = getQueryVariable('redirect');
 
         data = {
             'username': username,
             'password': password,
-            'redirectUrl': redirectUrl
         }
         $.ajax({
             type: 'POST',
