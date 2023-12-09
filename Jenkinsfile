@@ -7,14 +7,9 @@ pipeline {
     stages {
         stage('LDAP') {
             agent {
-                environment {
-                    LDAP_ORGANISATION: "Skinny WSSO"
-                    LDAP_DOMAIN: "skinny.wsso"
-                    LDAP_ADMIN_PASSWORD: '$WSSO_ADMIN_PWD'
-                }
                 docker { 
                     image 'osixia/openldap:latest'
-                    args '--network=skinnywsso -p 389:389 -p 636:636 -v /data/ldap:/var/lib/ldap -v /data/slapd.d:/etc/ldap/slapd.d -e LDAP_ORGANISATION="$LDAP_ORGANISATION" -e LDAP_DOMAIN="$LDAP_DOMAIN" -e LDAP_ADMIN_PASSWORD="$LDAP_ADMIN_PASSWORD"'
+                    args '--network=skinnywsso -p 389:389 -p 636:636 -v /data/ldap:/var/lib/ldap -v /data/slapd.d:/etc/ldap/slapd.d -e LDAP_ORGANISATION="Skinny WSSO" -e LDAP_DOMAIN="skinny.wsso" -e LDAP_ADMIN_PASSWORD="$WSSO_ADMIN_PWD"'
                 }
             }
             steps {
@@ -24,18 +19,9 @@ pipeline {
 
         stage('WSSO') {
             agent {
-                environment {
-                    WSSO_ADMIN_PASSWORD: '$WSSO_ADMIN_PWD'
-                    WSSO_ADMIN_USERNAME: '$WSSO_ADMIN_USR'
-                    USE_HTTPS: 'true'
-                    CERT_PATH: "/opt/skinnywsso/tls/cert.pem"
-                    KEY_PATH: "/opt/skinnywsso/tls/key.pem"
-                    JWT_PRIVATE_KEY: "/opt.skinnywsso/tls/priv.pem"
-                    JWT_PUBLIC_KEY: "/opt.skinnywsso/tls/pub.pem"
-                }
                 docker { 
                     image 'golang:latest'
-                    args '--network=skinnywsso -p 443:443 -p 80:80 -e WSSO_ADMIN_PASSWORD="$WSSO_ADMIN_PASSWORD" -e WSSO_ADMIN_USERNAME="$WSSO_ADMIN_USERNAME" -e USE_HTTPS="$USE_HTTPS" -e CERT_PATH="$CERT_PATH" -e KEY_PATH="$KEY_PATH" -e JWT_PRIVATE_KEY="$JWT_PRIVATE_KEY" -e JWT_PUBLIC_KEY="$JWT_PUBLIC_KEY"'
+                    args '--network=skinnywsso -p 443:443 -p 80:80 -e WSSO_ADMIN_PASSWORD="$WSSO_ADMIN_PWD" -e WSSO_ADMIN_USERNAME="$WSSO_ADMIN_USR" -e USE_HTTPS="true" -e CERT_PATH="/opt/skinnywsso/tls/cert.pem" -e KEY_PATH="/opt/skinnywsso/tls/key.pem" -e JWT_PRIVATE_KEY="/opt.skinnywsso/tls/priv.pem" -e JWT_PUBLIC_KEY="/opt.skinnywsso/tls/pub.pem"'
                 }
             }
             steps {
