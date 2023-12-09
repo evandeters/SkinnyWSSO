@@ -5,16 +5,6 @@ pipeline {
         WSSO_ADMIN = credentials('wsso_admin_creds')
     }
     stages {
-        stage('Initialize') {
-            agent any
-            steps {
-                sh '''
-                    /usr/bin/docker volume create ldap_data
-                    /usr/bin/docker volume create ldap_slapd
-                    /usr/bin/docker network create skinnywsso
-                '''
-            }
-        }
         stage('LDAP') {
             agent {
                 environment {
