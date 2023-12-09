@@ -48,7 +48,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	l, err := ldap.DialURL("ldap://host.docker.internal:389")
+	l, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
