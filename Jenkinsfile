@@ -14,20 +14,6 @@ pipeline {
     tools { go '1.21.5'}
 
     stages {
-        /**stage('LDAP') {
-            steps {
-                    sh '''
-                        rm -rf /var/lib/ldap/* 
-                        cp -R /root/ldap_backup/* /var/lib/ldap/
-                        chown -R openldap:openldap /var/lib/ldap/
-                        systemctl restart slapd
-                        ldapadd -x -w $WSSO_ADMIN_PSW -H ldapi:/// -D cn=admin,dc=skinny,dc=wsso -f ./wsso.ldif
-                        echo test
-                    '''
-                }
-        }
-    **/
-
         stage('Compile') {
             steps {
                 sh 'go build'
@@ -36,7 +22,7 @@ pipeline {
 
         stage('Release') {
             when {
-                buildingTag()
+                tag 'v*'
             }
             environment {
                 GITHUB_TOKEN = credentials('github_token')
