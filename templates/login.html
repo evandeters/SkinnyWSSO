@@ -82,6 +82,7 @@
             data: JSON.stringify(data),
             success: function(data) {
                 console.log(data);
+                window.location.href = '/dashboard';
             },
             error: function(error) {
                 alert('Invalid username or password.');

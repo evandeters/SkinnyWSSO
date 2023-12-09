@@ -32,6 +32,9 @@ func addPrivateRoutes(g *gin.RouterGroup) {
 		c.HTML(200, "admin.html", gin.H{})
 	})
 	g.GET("/api/users/list", listUsers)
+	g.GET("/dashboard", func(c *gin.Context) {
+		c.HTML(200, "dashboard.html", gin.H{})
+	})
 	g.DELETE("/api/users/delete/:username", deleteUser)
 }
 
