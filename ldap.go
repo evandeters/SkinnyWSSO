@@ -53,7 +53,7 @@ func registerUser(username string, password string, email string) (string, int) 
 }
 
 func deleteLdapUser(username string) (string, int) {
-	l, err := ldap.DialURL("ldap://ldap:389")
+	l, err := ldap.DialURL("ldap://host.docker.internal:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
 		return message, 1
@@ -80,7 +80,7 @@ func deleteLdapUser(username string) (string, int) {
 }
 
 func getLdapUsers() ([]string, int) {
-	l, err := ldap.DialURL("ldap://ldap:389")
+	l, err := ldap.DialURL("ldap://host.docker.internal:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
 		return []string{message}, 1

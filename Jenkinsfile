@@ -28,7 +28,7 @@ pipeline {
             agent {
                 docker { 
                     image 'golang:latest'
-                    args '--add-host host.docker.internal:host-gateway --network=skinnywsso -p 443:443 -p 80:80 -e WSSO_ADMIN_PASSWORD="$WSSO_ADMIN_PWD" -e WSSO_ADMIN_USERNAME="$WSSO_ADMIN_USR" -e USE_HTTPS="true" -e CERT_PATH="/opt/skinnywsso/tls/cert.pem" -e KEY_PATH="/opt/skinnywsso/tls/key.pem" -e JWT_PRIVATE_KEY="/opt/skinnywsso/tls/priv.pem" -e JWT_PUBLIC_KEY="/opt/skinnywsso/tls/pub.pem"'
+                    args '--add-host host.docker.internal:host-gateway --network=skinnywsso -p 443:443 -p 80:80 -e WSSO_ADMIN_PASSWORD="$WSSO_ADMIN_PSW" -e LDAP_ADMIN_PASSWORD="$WSSO_ADMIN_PSW" -e WSSO_ADMIN_USERNAME="$WSSO_ADMIN_USR" -e USE_HTTPS="true" -e CERT_PATH="/opt/skinnywsso/tls/cert.pem" -e KEY_PATH="/opt/skinnywsso/tls/key.pem" -e JWT_PRIVATE_KEY="/opt/skinnywsso/tls/priv.pem" -e JWT_PUBLIC_KEY="/opt/skinnywsso/tls/pub.pem"'
                 }
             }
             steps {
