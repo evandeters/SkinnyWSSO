@@ -8,7 +8,7 @@ export jwtprivatekey=/opt/skinnywsso/tls/priv.pem
 export jwtpublickey=/opt/skinnywsso/tls/pub.pem
 export CGO_CFLAGS="-g -O2 -Wno-return-local-addr"
 cd /opt/
-git clone https://github.com/evanjd711/skinnywsso.git
+git clone https://github.com/ged-official/skinnywsso.git
 cd /opt/skinnywsso
 apt install docker-compose -y
 mkdir tls
