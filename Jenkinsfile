@@ -9,6 +9,7 @@ pipeline {
 
     environment {
         WSSO_ADMIN = credentials('wsso_admin_creds')
+        LDAP_ADMIN_PASSWORD = credentials('ldap_admin_password')
     }
 
     tools { go '1.21.5'}
@@ -28,18 +29,14 @@ pipeline {
                     chown -R openldap:openldap /var/lib/ldap/
                     systemctl restart slapd
                 '''
-                sh 'ldapadd -x -H ldapi:/// -f ~/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $WSSO_ADMIN_PSW'
+                sh 'ldapadd -x -H ldapi:/// -f ~/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD'
             }
         }
 
         stage('Unit Tests') {
-            environment {
-                LDAP_ADMIN_PASSWORD = credentials('ldap_admin_password')
-            }
             steps {
                 sh '''
-                    printenv
-                    go test -v ./...
+                    go test -v
                 '''
             }
         }
@@ -58,7 +55,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'systemctl start skinnywsso.service'
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'rm -rf /var/lib/ldap/*; cp -R /root/ldap_backup/* /var/lib/ldap/; chown -R openldap:openldap /var/lib/ldap/; systemctl restart slapd'
                     '''
-                    sh 'ssh -o StrictHostKeyChecking=no skinnywsso-dev "ldapadd -x -H ldapi:/// -f /opt/skinnywsso/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $WSSO_ADMIN_PSW"'
+                    sh 'ssh -o StrictHostKeyChecking=no skinnywsso-dev "ldapadd -x -H ldapi:/// -f /opt/skinnywsso/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD"'
             }
             }
         }
