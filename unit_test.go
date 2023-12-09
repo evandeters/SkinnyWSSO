@@ -12,6 +12,7 @@ import (
 
 func TestRegisterUser(t *testing.T) {
 	router := gin.Default()
+	initCookies(router)
 	router.POST("/api/users/register", register)
 	w := httptest.NewRecorder()
 
@@ -33,6 +34,7 @@ func TestRegisterUser(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	router := gin.Default()
+	initCookies(router)
 	router.POST("/api/users/login", login)
 	w := httptest.NewRecorder()
 
@@ -54,6 +56,7 @@ func TestLogin(t *testing.T) {
 
 func TestLogoutWithoutAuth(t *testing.T) {
 	router := gin.Default()
+	initCookies(router)
 	router.GET("/logout", logout)
 	w := httptest.NewRecorder()
 
