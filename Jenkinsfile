@@ -13,7 +13,7 @@ pipeline {
                 }
             }
             steps {
-                    sh('slapcat')
+                    sh('whoami; sleep 2')
                 }
         }
 
