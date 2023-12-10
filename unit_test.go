@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -61,7 +60,6 @@ func TestLoginAndLogout(t *testing.T) {
 
 	// Add cookies to request
 	for _, cookie := range cookies {
-		fmt.Println(cookie)
 		logoutReq.AddCookie(cookie)
 	}
 
