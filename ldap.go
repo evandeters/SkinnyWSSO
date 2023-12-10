@@ -115,3 +115,38 @@ func getLdapUsers() ([]string, int) {
 
 	return users, 0
 }
+
+func isMemberOf(username string, group string) (bool, int) {
+	l, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return false, 1
+	}
+	defer l.Close()
+
+	// Bind with Admin
+	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
+	if err != nil {
+		return false, 1
+	}
+
+	searchRequest := ldap.NewSearchRequest(
+		"ou=groups,dc=skinny,dc=wsso",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectClass=posixGroup)(memberUid="+username+"))",
+		[]string{"cn"},
+		nil,
+	)
+
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		return false, 1
+	}
+
+	for _, entry := range sr.Entries {
+		if entry.GetAttributeValue("cn") == group {
+			return true, 0
+		}
+	}
+
+	return false, 0
+}
