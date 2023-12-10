@@ -10,6 +10,7 @@ import (
 func main() {
 
 	router := gin.Default()
+	router.Static("/assets", "./assets")
 	router.LoadHTMLGlob("templates/*")
 	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 	initCookies(router)
