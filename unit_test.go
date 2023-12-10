@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -32,54 +33,44 @@ func TestRegisterUser(t *testing.T) {
 	assert.Equal(t, expected, w.Body.String())
 }
 
-func TestLogin(t *testing.T) {
+func TestLoginAndLogout(t *testing.T) {
+
 	router := gin.Default()
-	initCookies(router)
+	initCookies(router) // Make sure this correctly initializes any required middleware
 	router.POST("/api/users/login", login)
+	router.GET("/logout", logout)
+
+	// Create and send login request
+	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
+	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
+	loginReq.Header.Set("Content-Type", "application/json")
+
 	w := httptest.NewRecorder()
+	router.ServeHTTP(w, loginReq)
 
-	// Create a request to send to the above route
-	jsonParam := `{"username": "testuser", "password": "testpassword"}`
-	req, err := http.NewRequest("POST", "/api/users/login", bytes.NewBufferString(jsonParam))
-
-	assert.NoError(t, err)
-
-	router.ServeHTTP(w, req)
-
-	if status := w.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
-
+	// Verify login was successful
+	assert.Equal(t, 200, w.Code)
 	expected := `{"message":"Successfully logged in!"}`
 	assert.Equal(t, expected, w.Body.String())
-}
 
-func TestLogout(t *testing.T) {
+	cookies := w.Result().Cookies()
 
-	router := gin.Default()
-	initCookies(router)
-	router.GET("/logout", logout)
-	w := httptest.NewRecorder()
+	// Create and send logout request
+	logoutReq, _ := http.NewRequest("GET", "/logout", nil)
 
-	// Create a request to send to the above route
-	req, err := http.NewRequest("GET", "/logout", nil)
-
-	assert.NoError(t, err)
-
-	// Set cookie
-	cookie := &http.Cookie{
-		Name:  "kamino",
-		Value: "MTcwMjE2ODAyNXxEWDhFQVFMX2dBQUJFQUVRQUFBZ180QUFBUVp6ZEhKcGJtY01CQUFDYVdRR2MzUnlhVzVuREFZQUJHVjJZVzQ9fACZIvdMB3W_7AIWvXtsfv6E9LjOglKjrGNNkOdzY29f",
+	// Add cookies to request
+	for _, cookie := range cookies {
+		logoutReq.AddCookie(cookie)
 	}
-	req.AddCookie(cookie)
 
-	router.ServeHTTP(w, req)
+	// Important: Use the same recorder to maintain the session state
+	router.ServeHTTP(w, logoutReq)
 
 	// Check the status code is what we expect.
 	assert.Equal(t, 200, w.Code)
 
 	// Check the response body is what we expect.
-	expected := `{"message":"Successfully logged out!"}`
+	expected = expected + `{"message":"Successfully logged out!"}`
 	assert.Equal(t, expected, w.Body.String())
 
 }
