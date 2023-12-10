@@ -21,3 +21,18 @@ ou: users
 dn: ou=events,dc=skinny,dc=wsso
 objectClass: organizationalUnit
 ou: applications
+
+# admin, groups, skinny.wsso
+dn: cn=admin,ou=groups,dc=skinny,dc=wsso
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Administrators
+uniqueMember: cn=admin,ou=users,dc=skinny,dc=wsso
+
+# admin, users, skinny.wsso
+dn: cn={WSSO_ADMIN_USERNAME},ou=users,dc=skinny,dc=wsso
+objectClass: top
+objectClass: inetOrgPerson
+cn: admin
+sn: admin
+userPassword:: {WSSO_ADMIN_PASSWORD}
