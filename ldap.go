@@ -129,10 +129,12 @@ func isMemberOf(username string, group string) (bool, int) {
 		return false, 1
 	}
 
+	uniqueMember := fmt.Sprintf("uid=%s,ou=users,dc=skinny,dc=wsso", username)
+	searchFilter := fmt.Sprintf("(&(objectClass=groupOfUniqueNames)(uniqueMember=%s))", uniqueMember)
 	searchRequest := ldap.NewSearchRequest(
 		"ou=groups,dc=skinny,dc=wsso",
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectClass=groupOfUniqueNames)(uniqueMember=uid="+username+",ou=users,dc=skinny,dc=wsso))",
+		searchFilter,
 		[]string{"cn"},
 		nil,
 	)
