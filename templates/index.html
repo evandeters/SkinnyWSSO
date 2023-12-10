@@ -1,35 +1,10 @@
-{{ define "index.html" }}
+{{ template "header.html" }}
 
-<head>
-    <title>Landing Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-        }
-        h1 {
-            color: #333;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 10px;
-        }
-        a {
-            text-decoration: none;
-            color: #007bff;
-        }
-    </style>
-</head>
-<body>
-    <h1>Welcome to SkinnyWSSO!</h1>
-    <p>Please choose an option:</p>
-    <ul>
-        <li><a href="/login">Login</a></li>
-        <li><a href="/register">Register</a></li>
-    </ul>
-</body>
+<h1>Welcome to SkinnyWSSO!</h1>
+<p>Please choose an option:</p>
+<ul>
+    <li><a href="/login">Login</a></li>
+    <li><a href="/register">Register</a></li>
+</ul>
 
-{{ end }}
+{{ template "footer.html" }}

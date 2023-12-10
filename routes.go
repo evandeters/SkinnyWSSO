@@ -7,18 +7,11 @@ import (
 )
 
 func addPublicRoutes(g *gin.RouterGroup) {
-	g.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.html", gin.H{})
-	})
-	g.GET("/login/redirect", func(c *gin.Context) {
-		c.HTML(200, "login_redirect.html", gin.H{})
-	})
-	g.GET("/login", func(c *gin.Context) {
-		c.HTML(200, "login.html", gin.H{})
-	})
-	g.GET("/register", func(c *gin.Context) {
-		c.HTML(200, "register.html", gin.H{})
-	})
+	g.GET("/", viewIndex)
+	g.GET("/login/redirect", viewRedirect)
+	g.GET("/login", viewLogin)
+	g.GET("/register", viewRegister)
+
 	g.GET("/api/users/auth/:token", authFromToken)
 	g.POST("/api/users/login", login)
 	g.POST("/api/users/register", register)
@@ -37,6 +30,26 @@ func addPrivateRoutes(g *gin.RouterGroup) {
 	})
 	g.DELETE("/api/users/delete/:username", deleteUser)
 }
+
+// View handlers
+
+func viewIndex(c *gin.Context) {
+	c.HTML(200, "index.html", gin.H{})
+}
+
+func viewRedirect(c *gin.Context) {
+	c.HTML(200, "login_redirect.html", gin.H{})
+}
+
+func viewLogin(c *gin.Context) {
+	c.HTML(200, "login.html", gin.H{})
+}
+
+func viewRegister(c *gin.Context) {
+	c.HTML(200, "register.html", gin.H{})
+}
+
+// API handlers
 
 func status(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "ok"})
