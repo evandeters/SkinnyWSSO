@@ -30,7 +30,7 @@ cn: Administrators
 uniqueMember: cn=admin,ou=users,dc=skinny,dc=wsso
 
 # admin, users, skinny.wsso
-dn: cn={WSSO_ADMIN_USERNAME},ou=users,dc=skinny,dc=wsso
+dn: uid={WSSO_ADMIN_USERNAME},ou=users,dc=skinny,dc=wsso
 objectClass: top
 objectClass: inetOrgPerson
 cn: admin
