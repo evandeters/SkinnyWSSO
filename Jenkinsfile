@@ -34,7 +34,7 @@ pipeline {
                     chown -R openldap:openldap /var/lib/ldap/
                     systemctl restart slapd
                 '''
-                sh 'sed -i -e "s/{WSSO_ADMIN_PASSWORD}/$WSSO_ADMIN_PSW/g" -e "s/{WSSO_ADMIN_USERNAME}/$WSSO_ADMIN_USR/g" wsso.ldif'
+                sh 'psw=echo -n $WSSO_ADMIN_PSW | base64 -w 0; sed -i -e "s/{WSSO_ADMIN_PASSWORD}/$psw/g" -e "s/{WSSO_ADMIN_USERNAME}/$WSSO_ADMIN_USR/g" wsso.ldif'
                 sh 'ldapadd -x -H ldapi:/// -f ./wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD'
             }
         }
@@ -66,7 +66,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'systemctl start skinnywsso.service'
                         ssh -o StrictHostKeyChecking=no skinnywsso-dev 'rm -rf /var/lib/ldap/*; cp -R /root/ldap_backup/* /var/lib/ldap/; chown -R openldap:openldap /var/lib/ldap/; systemctl restart slapd'
                     '''
-                    sh 'sed -i -e "s/{WSSO_ADMIN_PASSWORD}/$WSSO_ADMIN_PSW/g" -e "s/{WSSO_ADMIN_USERNAME}/$WSSO_ADMIN_USR/g" wsso.ldif'
+                    sh 'psw=echo -n $WSSO_ADMIN_PSW | base64 -w 0; sed -i -e "s/{WSSO_ADMIN_PASSWORD}/$psw/g" -e "s/{WSSO_ADMIN_USERNAME}/$WSSO_ADMIN_USR/g" wsso.ldif'
                     sh 'ssh -o StrictHostKeyChecking=no skinnywsso-dev "ldapadd -x -H ldapi:/// -f /opt/skinnywsso/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD"'
             }
             }
