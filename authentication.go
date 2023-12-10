@@ -67,13 +67,13 @@ func login(c *gin.Context) {
 	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
 	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
 
@@ -81,10 +81,10 @@ func login(c *gin.Context) {
 	tok, err := jwtToken.Create(time.Hour, "auth")
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
-	c.SetCookie("token", tok, 86400, "/", "tipoca.dev.gfed", false, true)
+	c.SetCookie("token", tok, 86400, "/", "wsso.dev.gfed", false, true)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)

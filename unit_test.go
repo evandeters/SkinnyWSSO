@@ -37,21 +37,24 @@ func TestLogin(t *testing.T) {
 	initCookies(router)
 	router.POST("/api/users/login", login)
 	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
 
-	// Create a request to send to the above route
-	jsonParam := `{"username": "testuser", "password": "testpassword"}`
-	req, err := http.NewRequest("POST", "/api/users/login", bytes.NewBufferString(jsonParam))
-
-	assert.NoError(t, err)
-
-	router.ServeHTTP(w, req)
-
-	if status := w.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	c.Params = gin.Params{
+		gin.Param{
+			Key:   "username",
+			Value: "testuser",
+		},
+		gin.Param{
+			Key:   "password",
+			Value: "testpassword",
+		},
 	}
+
+	login(c)
 
 	expected := `{"message":"Successfully logged in!"}`
 	assert.Equal(t, expected, w.Body.String())
+
 }
 
 func TestLogoutWithoutAuth(t *testing.T) {
