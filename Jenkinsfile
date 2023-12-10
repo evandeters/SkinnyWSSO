@@ -35,7 +35,7 @@ pipeline {
                     systemctl restart slapd
                 '''
                 sh 'psw=$(echo -n $LDAP_ADMIN_PASSWORD | shasum -a 1 | awk \'{print $1}\' | base64); sed -i -e "s/{WSSO_ADMIN_PASSWORD}/{SSHA}$psw/g" -e "s/{WSSO_ADMIN_USERNAME}/$WSSO_ADMIN_USR/g" wsso.ldif'
-                sh 'ldapadd -x -H ldapi:/// -f ~/wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD'
+                sh 'ldapadd -x -H ldapi:/// -f ./wsso.ldif -D cn=admin,dc=skinny,dc=wsso -w $LDAP_ADMIN_PASSWORD'
             }
         }
 
