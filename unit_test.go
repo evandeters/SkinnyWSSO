@@ -28,7 +28,7 @@ func TestRegisterUser(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Check the status code is what we expect.
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Check the response body is what we expect.
 	expected := `{"message":"Account created successfully!"}`
@@ -51,7 +51,7 @@ func TestLoginAndLogout(t *testing.T) {
 	router.ServeHTTP(w, loginReq)
 
 	// Verify login was successful
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 	expected := `{"message":"Successfully logged in!"}`
 	assert.Equal(t, expected, w.Body.String())
 
@@ -69,7 +69,7 @@ func TestLoginAndLogout(t *testing.T) {
 	router.ServeHTTP(w, logoutReq)
 
 	// Check the status code is what we expect.
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Check the response body is what we expect.
 	expected = expected + `{"message":"Successfully logged out!"}`
@@ -92,7 +92,7 @@ func TestAdminAuthorization(t *testing.T) {
 	router.ServeHTTP(w, loginReq)
 
 	// Verify login was successful
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 	expected := `{"message":"Successfully logged in!"}`
 	assert.Equal(t, expected, w.Body.String())
 
@@ -108,7 +108,34 @@ func TestAdminAuthorization(t *testing.T) {
 
 	router.ServeHTTP(w, adminReq)
 
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// Now try to access the admin page with a non-admin user
+	loginBody = strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
+	loginReq, _ = http.NewRequest("POST", "/api/users/login", loginBody)
+	loginReq.Header.Set("Content-Type", "application/json")
+
+	w2 := httptest.NewRecorder()
+	router.ServeHTTP(w2, loginReq)
+
+	// Verify login was successful
+	assert.Equal(t, http.StatusOK, w2.Code)
+	expected = `{"message":"Successfully logged in!"}`
+	assert.Equal(t, expected, w2.Body.String())
+
+	cookies = w2.Result().Cookies()
+
+	adminReq2, _ := http.NewRequest("GET", "/api/users/list", nil)
+
+	for _, cookie := range cookies {
+		adminReq2.AddCookie(cookie)
+	}
+
+	router.ServeHTTP(w2, adminReq2)
+
+	expected = expected + `{"error":"Unauthorized."}`
+	assert.Equal(t, http.StatusUnauthorized, w2.Code)
+	assert.Equal(t, expected, w2.Body.String())
 }
 
 func TestLogoutWithoutAuth(t *testing.T) {
@@ -125,7 +152,7 @@ func TestLogoutWithoutAuth(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Check the status code is what we expect.
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Check the response body is what we expect.
 	expected := `{"message":"No session."}`
