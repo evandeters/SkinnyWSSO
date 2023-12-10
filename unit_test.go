@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -73,6 +75,40 @@ func TestLoginAndLogout(t *testing.T) {
 	expected = expected + `{"message":"Successfully logged out!"}`
 	assert.Equal(t, expected, w.Body.String())
 
+}
+
+func TestAdminAuthorization(t *testing.T) {
+
+	router := gin.Default()
+	initCookies(router) // Make sure this correctly initializes any required middleware
+	router.POST("/api/users/login", login)
+
+	// Create and send login request
+	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USERNAME"), os.Getenv("WSSO_ADMIN_PASSWORD")))
+	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
+	loginReq.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, loginReq)
+
+	// Verify login was successful
+	assert.Equal(t, 200, w.Code)
+	expected := `{"message":"Successfully logged in!"}`
+	assert.Equal(t, expected, w.Body.String())
+
+	cookies := w.Result().Cookies()
+
+	// Create and send User List Request (Requires Admin)
+	adminReq, _ := http.NewRequest("GET", "/api/users/list", nil)
+
+	// Add cookies to request
+	for _, cookie := range cookies {
+		adminReq.AddCookie(cookie)
+	}
+
+	router.ServeHTTP(w, adminReq)
+
+	assert.Equal(t, 200, w.Code)
 }
 
 func TestLogoutWithoutAuth(t *testing.T) {
