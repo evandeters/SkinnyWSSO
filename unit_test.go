@@ -84,7 +84,7 @@ func TestAdminAuthorization(t *testing.T) {
 	router.POST("/api/users/login", login)
 
 	// Create and send login request
-	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USERNAME"), os.Getenv("WSSO_ADMIN_PASSWORD")))
+	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
 	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
 	loginReq.Header.Set("Content-Type", "application/json")
 
