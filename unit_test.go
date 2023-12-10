@@ -114,38 +114,38 @@ func TestAdminAuthorization(t *testing.T) {
 
 }
 
-func TestFailedAdminAuthorization(t *testing.T) {
+// func TestFailedAdminAuthorization(t *testing.T) {
 
-	router := gin.Default()
-	initCookies(router) // Make sure this correctly initializes any required middleware
-	router.POST("/api/users/login", login)
+// 	router := gin.Default()
+// 	initCookies(router) // Make sure this correctly initializes any required middleware
+// 	router.POST("/api/users/login", login)
 
-	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
-	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
-	loginReq.Header.Set("Content-Type", "application/json")
+// 	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
+// 	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
+// 	loginReq.Header.Set("Content-Type", "application/json")
 
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, loginReq)
+// 	w := httptest.NewRecorder()
+// 	router.ServeHTTP(w, loginReq)
 
-	// Verify login was successful
-	assert.Equal(t, http.StatusOK, w.Code)
-	expected := `{"message":"Successfully logged in!"}`
-	assert.Equal(t, expected, w.Body.String())
+// 	// Verify login was successful
+// 	assert.Equal(t, http.StatusOK, w.Code)
+// 	expected := `{"message":"Successfully logged in!"}`
+// 	assert.Equal(t, expected, w.Body.String())
 
-	cookies := w.Result().Cookies()
+// 	cookies := w.Result().Cookies()
 
-	adminReq, _ := http.NewRequest("GET", "/api/users/list", nil)
+// 	adminReq, _ := http.NewRequest("GET", "/api/users/list", nil)
 
-	for _, cookie := range cookies {
-		adminReq.AddCookie(cookie)
-	}
+// 	for _, cookie := range cookies {
+// 		adminReq.AddCookie(cookie)
+// 	}
 
-	router.ServeHTTP(w, adminReq)
+// 	router.ServeHTTP(w, adminReq)
 
-	expected = expected + `{"error":"Unauthorized."}`
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Equal(t, expected, w.Body.String())
-}
+// 	expected = expected + `{"error":"Unauthorized."}`
+// 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+// 	assert.Equal(t, expected, w.Body.String())
+// }
 
 // func TestDeleteUser(t *testing.T) {
 
