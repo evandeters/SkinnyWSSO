@@ -166,10 +166,26 @@ func authFromToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
 }
 
-func adminAuthRequired(c *gin.Context) int {
-	user, password, hasAuth := c.Request.BasicAuth()
-	if !hasAuth || (user != os.Getenv("WSSO_ADMIN_USERNAME") && password != os.Getenv("WSSO_ADMIN_PASSWORD")) {
-		return 1
+func adminAuthRequired(c *gin.Context) {
+
+	session := sessions.Default(c)
+	id := session.Get("id")
+	if id == nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
 	}
-	return 0
+
+	isAdmin, err := isMemberOf(id.(string), "admins")
+
+	if err != 0 {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify admin status."})
+		return
+	}
+
+	if isAdmin == false {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	c.Next()
 }

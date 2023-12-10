@@ -22,12 +22,12 @@ dn: ou=events,dc=skinny,dc=wsso
 objectClass: organizationalUnit
 ou: applications
 
-# admin, groups, skinny.wsso
-dn: cn=admin,ou=groups,dc=skinny,dc=wsso
+# admins, groups, skinny.wsso
+dn: cn=admins,ou=groups,dc=skinny,dc=wsso
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: Administrators
-uniqueMember: cn=admin,ou=users,dc=skinny,dc=wsso
+cn: admins
+uniqueMember: uid=admin,ou=users,dc=skinny,dc=wsso
 
 # admin, users, skinny.wsso
 dn: uid={WSSO_ADMIN_USERNAME},ou=users,dc=skinny,dc=wsso

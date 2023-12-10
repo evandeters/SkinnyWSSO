@@ -22,6 +22,10 @@ func main() {
 	private.Use(authRequired)
 	addPrivateRoutes(private)
 
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
+
 	if os.Getenv("USE_HTTPS") == "true" {
 		log.Fatalln(router.RunTLS(":443", os.Getenv("CERT_PATH"), os.Getenv("KEY_PATH")))
 	} else {
