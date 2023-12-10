@@ -182,8 +182,8 @@ func adminAuthRequired(c *gin.Context) {
 		return
 	}
 
-	if isAdmin == false {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	if !isAdmin {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User is not admin."})
 		return
 	}
 
