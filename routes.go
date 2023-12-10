@@ -25,10 +25,8 @@ func addPrivateRoutes(g *gin.RouterGroup) {
 }
 
 func addAdminRoutes(g *gin.RouterGroup) {
+	g.GET("/admin", viewAdmin)
 	g.GET("/api/users/list", listUsers)
-	g.GET("/admin", func(c *gin.Context) {
-		c.HTML(200, "admin.html", gin.H{})
-	})
 	g.DELETE("/api/users/delete/:username", deleteUser)
 }
 
@@ -48,6 +46,10 @@ func viewLogin(c *gin.Context) {
 
 func viewRegister(c *gin.Context) {
 	c.HTML(200, "register.html", gin.H{})
+}
+
+func viewAdmin(c *gin.Context) {
+	c.HTML(200, "admin.html", gin.H{})
 }
 
 // API handlers
