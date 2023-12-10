@@ -32,7 +32,17 @@ uniqueMember: cn=admin,ou=users,dc=skinny,dc=wsso
 # admin, users, skinny.wsso
 dn: uid={WSSO_ADMIN_USERNAME},ou=users,dc=skinny,dc=wsso
 objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
 objectClass: inetOrgPerson
-cn: admin
-sn: admin
+uid: {WSSO_ADMIN_USERNAME}
+uidNumber: 1
+gidNumber: 1
+homeDirectory: /home/{WSSO_ADMIN_USERNAME}
+loginShell: /bin/bash
+cn: {WSSO_ADMIN_USERNAME}
+sn: {WSSO_ADMIN_USERNAME}
 userPassword:: {WSSO_ADMIN_PASSWORD}
+shadowLastChange: 0
+shadowMax: 99999
+shadowWarning: 7
