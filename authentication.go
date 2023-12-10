@@ -175,6 +175,8 @@ func adminAuthRequired(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(id)
+	fmt.Println(id.(string))
 	isAdmin, err := isMemberOf(id.(string), "admins")
 
 	if err != 0 {
