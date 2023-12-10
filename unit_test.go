@@ -37,22 +37,49 @@ func TestLogin(t *testing.T) {
 	initCookies(router)
 	router.POST("/api/users/login", login)
 	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
 
-	c.Params = gin.Params{
-		gin.Param{
-			Key:   "username",
-			Value: "testuser",
-		},
-		gin.Param{
-			Key:   "password",
-			Value: "testpassword",
-		},
+	// Create a request to send to the above route
+	jsonParam := `{"username": "testuser", "password": "testpassword"}`
+	req, err := http.NewRequest("POST", "/api/users/login", bytes.NewBufferString(jsonParam))
+
+	assert.NoError(t, err)
+
+	router.ServeHTTP(w, req)
+
+	if status := w.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	login(c)
-
 	expected := `{"message":"Successfully logged in!"}`
+	assert.Equal(t, expected, w.Body.String())
+}
+
+func TestLogout(t *testing.T) {
+
+	router := gin.Default()
+	initCookies(router)
+	router.GET("/logout", logout)
+	w := httptest.NewRecorder()
+
+	// Create a request to send to the above route
+	req, err := http.NewRequest("GET", "/logout", nil)
+
+	assert.NoError(t, err)
+
+	// Set cookie
+	cookie := &http.Cookie{
+		Name:  "kamino",
+		Value: "MTcwMjE2ODAyNXxEWDhFQVFMX2dBQUJFQUVRQUFBZ180QUFBUVp6ZEhKcGJtY01CQUFDYVdRR2MzUnlhVzVuREFZQUJHVjJZVzQ9fACZIvdMB3W_7AIWvXtsfv6E9LjOglKjrGNNkOdzY29f",
+	}
+	req.AddCookie(cookie)
+
+	router.ServeHTTP(w, req)
+
+	// Check the status code is what we expect.
+	assert.Equal(t, 200, w.Code)
+
+	// Check the response body is what we expect.
+	expected := `{"message":"Successfully logged out!"}`
 	assert.Equal(t, expected, w.Body.String())
 
 }
@@ -76,5 +103,4 @@ func TestLogoutWithoutAuth(t *testing.T) {
 	// Check the response body is what we expect.
 	expected := `{"message":"No session."}`
 	assert.Equal(t, expected, w.Body.String())
-
 }
