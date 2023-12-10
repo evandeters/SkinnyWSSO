@@ -131,7 +131,7 @@ func register(c *gin.Context) {
 
 	message, err := registerUser(username, password, email)
 
-	if err != 0 {
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": message})
 		return
 	}
@@ -177,7 +177,7 @@ func adminAuthRequired(c *gin.Context) {
 
 	isAdmin, err := isMemberOf(id.(string), "admins")
 
-	if err != 0 {
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify admin status."})
 		return
 	}

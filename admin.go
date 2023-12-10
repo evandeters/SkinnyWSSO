@@ -7,22 +7,20 @@ import (
 func listUsers(c *gin.Context) {
 
 	users, err := getLdapUsers()
-	if err != 0 {
+	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Failed to get users."})
 		return
 	}
 	c.JSON(200, gin.H{"users": users})
-
 }
 
 func deleteUser(c *gin.Context) {
 
 	username := c.Param("username")
 	message, err := deleteLdapUser(username)
-	if err != 0 {
+	if err != nil {
 		c.JSON(500, gin.H{"error": message})
 		return
 	}
 	c.JSON(200, gin.H{"message": message})
-
 }

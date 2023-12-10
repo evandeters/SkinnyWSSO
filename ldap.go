@@ -8,11 +8,11 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-func registerUser(username string, password string, email string) (string, int) {
+func registerUser(username string, password string, email string) (string, error) {
 	l, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
-		return message, 1
+		return message, err
 	}
 	defer l.Close()
 
@@ -20,7 +20,7 @@ func registerUser(username string, password string, email string) (string, int) 
 	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
 		message := "Failed to bind with LDAP server."
-		return message, 1
+		return message, err
 	}
 
 	addRequest := ldap.NewAddRequest("uid="+username+",ou=users,dc=skinny,dc=wsso", nil)
@@ -42,21 +42,21 @@ func registerUser(username string, password string, email string) (string, int) 
 	if err != nil {
 		if strings.Contains(err.Error(), "68") {
 			message := fmt.Sprintf("Username %s is not available!", username)
-			return message, 1
+			return message, err
 		}
 		message := "Failed to register your account. Please contact an administrator."
-		return message, 1
+		return message, err
 	}
 
 	message := "Account created successfully!"
-	return message, 0
+	return message, nil
 }
 
-func deleteLdapUser(username string) (string, int) {
+func deleteLdapUser(username string) (string, error) {
 	l, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
-		return message, 1
+		return message, err
 	}
 	defer l.Close()
 
@@ -64,7 +64,7 @@ func deleteLdapUser(username string) (string, int) {
 	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
 		message := "Failed to bind with LDAP server."
-		return message, 1
+		return message, err
 	}
 
 	delRequest := ldap.NewDelRequest("uid="+username+",ou=users,dc=skinny,dc=wsso", nil)
@@ -72,18 +72,18 @@ func deleteLdapUser(username string) (string, int) {
 
 	if err != nil {
 		message := "Failed to delete your account."
-		return message, 1
+		return message, err
 	}
 
 	message := "Account deleted successfully!"
-	return message, 0
+	return message, nil
 }
 
-func getLdapUsers() ([]string, int) {
+func getLdapUsers() ([]string, error) {
 	l, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
 		message := "Failed to connect to LDAP server."
-		return []string{message}, 1
+		return []string{message}, err
 	}
 	defer l.Close()
 
@@ -91,7 +91,7 @@ func getLdapUsers() ([]string, int) {
 	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
 		message := "Failed to bind with LDAP server."
-		return []string{message}, 1
+		return []string{message}, err
 	}
 
 	searchRequest := ldap.NewSearchRequest(
@@ -105,7 +105,7 @@ func getLdapUsers() ([]string, int) {
 	sr, err := l.Search(searchRequest)
 	if err != nil {
 		message := "Failed to list users."
-		return []string{message}, 1
+		return []string{message}, err
 	}
 
 	var users []string
@@ -113,20 +113,20 @@ func getLdapUsers() ([]string, int) {
 		users = append(users, entry.GetAttributeValue("uid"))
 	}
 
-	return users, 0
+	return users, nil
 }
 
-func isMemberOf(username string, group string) (bool, int) {
+func isMemberOf(username string, group string) (bool, error) {
 	l, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
-		return false, 1
+		return false, err
 	}
 	defer l.Close()
 
 	// Bind with Admin
 	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
-		return false, 1
+		return false, err
 	}
 
 	uniqueMember := fmt.Sprintf("uid=%s,ou=users,dc=skinny,dc=wsso", username)
@@ -141,14 +141,14 @@ func isMemberOf(username string, group string) (bool, int) {
 
 	sr, err := l.Search(searchRequest)
 	if err != nil {
-		return false, 1
+		return false, err
 	}
 
 	for _, entry := range sr.Entries {
 		if entry.GetAttributeValue("cn") == group {
-			return true, 0
+			return true, nil
 		}
 	}
 
-	return false, 0
+	return false, nil
 }
