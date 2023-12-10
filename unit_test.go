@@ -111,31 +111,78 @@ func TestAdminAuthorization(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Now try to access the admin page with a non-admin user
-	loginBody = strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
-	loginReq, _ = http.NewRequest("POST", "/api/users/login", loginBody)
+
+}
+
+func TestFailedAdminAuthorization(t *testing.T) {
+
+	router := gin.Default()
+	initCookies(router) // Make sure this correctly initializes any required middleware
+	router.POST("/api/users/login", login)
+
+	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
+	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
 	loginReq.Header.Set("Content-Type", "application/json")
 
-	w2 := httptest.NewRecorder()
-	router.ServeHTTP(w2, loginReq)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, loginReq)
 
 	// Verify login was successful
-	assert.Equal(t, http.StatusOK, w2.Code)
-	expected = `{"message":"Successfully logged in!"}`
-	assert.Equal(t, expected, w2.Body.String())
+	assert.Equal(t, http.StatusOK, w.Code)
+	expected := `{"message":"Successfully logged in!"}`
+	assert.Equal(t, expected, w.Body.String())
 
-	cookies = w2.Result().Cookies()
+	cookies := w.Result().Cookies()
 
-	adminReq2, _ := http.NewRequest("GET", "/api/users/list", nil)
+	adminReq, _ := http.NewRequest("GET", "/api/users/list", nil)
 
 	for _, cookie := range cookies {
-		adminReq2.AddCookie(cookie)
+		adminReq.AddCookie(cookie)
 	}
 
-	router.ServeHTTP(w2, adminReq2)
+	router.ServeHTTP(w, adminReq)
 
 	expected = expected + `{"error":"Unauthorized."}`
-	assert.Equal(t, http.StatusUnauthorized, w2.Code)
-	assert.Equal(t, expected, w2.Body.String())
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Equal(t, expected, w.Body.String())
+}
+
+func TestDeleteUser(t *testing.T) {
+
+	router := gin.Default()
+	initCookies(router) // Make sure this correctly initializes any required middleware
+	router.POST("/api/users/login", login)
+
+	// Create and send login request
+	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
+	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
+	loginReq.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, loginReq)
+
+	// Verify login was successful
+	assert.Equal(t, http.StatusOK, w.Code)
+	expected := `{"message":"Successfully logged in!"}`
+	assert.Equal(t, expected, w.Body.String())
+
+	cookies := w.Result().Cookies()
+
+	// Create Delete Request
+	deleteReq, _ := http.NewRequest("DELETE", "/api/users/delete/testuser", nil)
+
+	// Add cookies to request
+	for _, cookie := range cookies {
+		deleteReq.AddCookie(cookie)
+	}
+
+	router.ServeHTTP(w, deleteReq)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	expected = `{"message":"Account deleted successfully!"}`
+	assert.Equal(t, expected, w.Body.String())
+
 }
 
 func TestLogoutWithoutAuth(t *testing.T) {
