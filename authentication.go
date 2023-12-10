@@ -115,6 +115,7 @@ func logout(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out!"})
+	c.Redirect(http.StatusSeeOther, "/")
 }
 
 func register(c *gin.Context) {
