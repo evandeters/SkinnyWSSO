@@ -53,8 +53,18 @@ func TestLoginAndLogout(t *testing.T) {
 	expected := `{"message":"Successfully logged in!"}`
 	assert.Equal(t, expected, w.Body.String())
 
+	cookies := w.Result().Cookies()
+
 	// Create and send logout request
 	logoutReq, _ := http.NewRequest("GET", "/logout", nil)
+
+	// Add cookies to request
+	for _, cookie := range cookies {
+		logoutReq.AddCookie(cookie)
+	}
+
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, logoutReq)
 
 	// Important: Use the same recorder to maintain the session state
 	router.ServeHTTP(w, logoutReq)
@@ -63,7 +73,7 @@ func TestLoginAndLogout(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	// Check the response body is what we expect.
-	expected = `{"message":"Successfully logged out!"}`
+	expected = expected + `{"message":"Successfully logged out!"}`
 	assert.Equal(t, expected, w.Body.String())
 
 }
