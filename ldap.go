@@ -132,7 +132,7 @@ func isMemberOf(username string, group string) (bool, int) {
 	searchRequest := ldap.NewSearchRequest(
 		"ou=groups,dc=skinny,dc=wsso",
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectClass=posixGroup)(memberUid="+username+"))",
+		"(&(objectClass=groupOfUniqueNames)(uniqueMember="+username+"))",
 		[]string{"cn"},
 		nil,
 	)
