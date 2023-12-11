@@ -219,6 +219,7 @@ func adminAuthRequired(c *gin.Context) {
 		return
 	}
 	jwtToken := token.NewJWT(prvKey, pubKey)
+	fmt.Println(tok)
 
 	dat, err := jwtToken.Validate(tok)
 	if err != nil {
