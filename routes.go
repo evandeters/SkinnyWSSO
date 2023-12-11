@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"SkinnyWSSO/token"
@@ -41,7 +40,6 @@ func pageData(c *gin.Context, specialData gin.H) gin.H {
 	data := gin.H{}
 
 	tok, err := c.Cookie("auth_token")
-	data["token"] = tok
 	if err != nil {
 		data["error"] = err
 	}
@@ -49,8 +47,7 @@ func pageData(c *gin.Context, specialData gin.H) gin.H {
 	if err != nil {
 		data["error"] = err
 	}
-	log.Println("claims:")
-	log.Printf("%+v\n", claims)
+
 	data["user"] = claims
 	// iterate over all keys in specialData and add them to data
 	for key, value := range specialData {
