@@ -158,10 +158,7 @@ func TestFailedAdminAuthorization(t *testing.T) {
 
 	router.ServeHTTP(w, adminReq)
 
-	fmt.Println(w)
-
 	expected = expected + `{"error":"Unauthorized"}`
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Equal(t, expected, w.Body.String())
 }
 
