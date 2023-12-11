@@ -3,6 +3,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,6 +17,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-ldap/ldap/v3"
 )
+
+type jwtData struct {
+	Username string   `json:"username"`
+	Groups   []string `json:"groups"`
+	Admin    bool     `json:"admin"`
+}
 
 func authRequired(c *gin.Context) {
 	session := sessions.Default(c)
@@ -48,6 +55,7 @@ func login(c *gin.Context) {
 		return
 	}
 
+	// Authenticate user
 	l, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -64,12 +72,14 @@ func login(c *gin.Context) {
 
 	session.Set("id", username)
 
+	// Generate JWT
 	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
+
 	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
 	if err != nil {
 		fmt.Println(err)
@@ -77,8 +87,34 @@ func login(c *gin.Context) {
 		return
 	}
 
+	groups, err := GetGroupMembership(username)
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
+		return
+	}
+	isAdmin, err := IsMemberOf(username, "admins")
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
+		return
+	}
+
+	jwtContent := jwtData{
+		Username: username,
+		Groups:   groups,
+		Admin:    isAdmin,
+	}
+
+	jwtJSON, err := json.Marshal(jwtContent)
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
+		return
+	}
+
 	jwtToken := token.NewJWT(prvKey, pubKey)
-	tok, err := jwtToken.Create(time.Hour, "auth")
+	tok, err := jwtToken.Create(time.Hour, jwtJSON)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
@@ -176,7 +212,7 @@ func adminAuthRequired(c *gin.Context) {
 		return
 	}
 
-	isAdmin, err := isMemberOf(id.(string), "admins")
+	isAdmin, err := IsMemberOf(id.(string), "admins")
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify admin status."})
