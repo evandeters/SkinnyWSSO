@@ -115,7 +115,7 @@ func logout(c *gin.Context) {
 	cookie, err := c.Request.Cookie("token")
 
 	if cookie != nil && err == nil {
-		c.SetCookie("token", "", -1, "/", "*", false, true)
+		c.SetCookie("auth_token", "", -1, "/", "*", false, true)
 	}
 
 	if id == nil {
@@ -177,7 +177,7 @@ func adminAuthRequired(c *gin.Context) {
 
 	tokenString, err := c.Cookie("auth_token")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized1"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
@@ -186,15 +186,18 @@ func adminAuthRequired(c *gin.Context) {
 	claims, err := token.GetClaimsFromToken(tokenString)
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized2"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
 	if val, ok := claims["UserInfo"]; ok {
 		userInfo := val.(map[string]interface{})
-		fmt.Println(userInfo)
+		if userInfo["admin"] != true {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
 	} else {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized3"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
