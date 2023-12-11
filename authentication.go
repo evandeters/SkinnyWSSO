@@ -24,7 +24,7 @@ func logout(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("id")
 
-	cookie, err := c.Request.Cookie("token")
+	cookie, err := c.Request.Cookie("auth_token")
 
 	if cookie != nil && err == nil {
 		c.SetCookie("auth_token", "", -1, "/", "*", false, true)
