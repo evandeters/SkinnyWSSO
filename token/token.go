@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -84,12 +83,4 @@ func ReadKeyFiles() ([]byte, []byte, error) {
 	}
 
 	return prvKey, pubKey, nil
-}
-
-func SetJWTClaimsContext(c *gin.Context, claims jwt.MapClaims) {
-	c.Set("claims", claims)
-}
-
-func JWTClaimsFromContext(c *gin.Context) jwt.MapClaims {
-	return c.MustGet("claims").(jwt.MapClaims)
 }
