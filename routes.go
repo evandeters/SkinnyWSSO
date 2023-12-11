@@ -60,10 +60,6 @@ func viewAdmin(c *gin.Context) {
 	c.HTML(200, "admin.html", gin.H{})
 }
 
-func viewDashboard(c *gin.Context) {
-	c.HTML(200, "dashboard.html", gin.H{})
-}
-
 // API handlers
 
 func status(c *gin.Context) {
