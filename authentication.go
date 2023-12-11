@@ -179,23 +179,15 @@ func register(c *gin.Context) {
 func authFromToken(c *gin.Context) {
 	tok := c.Param("token")
 
-	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	jwtToken, err := InitializeJWT()
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
-		return
-	}
-	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
-	if err != nil {
-		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
 
-	jwtToken := token.NewJWT(prvKey, pubKey)
-	fmt.Println(tok)
 	auth, _ := jwtToken.Validate(tok)
-	fmt.Println(auth)
+
 	if auth != "auth" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token."})
 		return
@@ -212,17 +204,71 @@ func adminAuthRequired(c *gin.Context) {
 		return
 	}
 
-	isAdmin, err := IsMemberOf(id.(string), "admins")
+	tok := c.Param("token")
 
+	jwtToken, err := InitializeJWT()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify admin status."})
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
 
-	if !isAdmin {
+	dat, err := jwtToken.Validate(tok)
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Invalid Session"})
+		return
+	}
+	data, ok := dat.([]byte)
+	if !ok {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Invalid Session"})
+		return
+	}
+
+	var tokData jwtData
+	err = json.Unmarshal(data, &tokData)
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Unable to parse JWT"})
+		return
+	}
+
+	if !tokData.Admin {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
 	c.Next()
+
+	// isAdmin, err := IsMemberOf(id.(string), "admins")
+
+	// if err != nil {
+	// 	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify admin status."})
+	// 	return
+	// }
+
+	// if !isAdmin {
+	// 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	// 	return
+	// }
+	//c.Next()
+}
+
+func InitializeJWT() (*token.JWT, error) {
+	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	tok := token.NewJWT(prvKey, pubKey)
+
+	return &tok, nil
 }
