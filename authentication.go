@@ -93,7 +93,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	jwtContent := jwtData{
+	jwtContent := token.UserJWTData{
 		Username: username,
 		Groups:   groups,
 		Admin:    isAdmin,
@@ -125,6 +125,12 @@ func logout(c *gin.Context) {
 
 	if cookie != nil && err == nil {
 		c.SetCookie("auth_token", "", -1, "/", "*", false, true)
+	}
+
+	err = session.Save()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
 	}
 
 	if id == nil {
@@ -191,8 +197,6 @@ func isAdmin(c *gin.Context) (bool, error) {
 		return false, err
 	}
 
-	fmt.Println(tokenString)
-
 	claims, err := token.GetClaimsFromToken(tokenString)
 	if err != nil {
 		return false, err
@@ -220,33 +224,6 @@ func adminAuthRequired(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-
-	c.Next()
-}
-
-func addClaimsToContext(c *gin.Context) {
-	session := sessions.Default(c)
-	id := session.Get("id")
-	if id == nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	auth_header := c.GetHeader("Authorization")
-	if !strings.HasPrefix(auth_header, "Bearer ") {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	tokenString := strings.TrimPrefix(auth_header, "Bearer ")
-
-	claims, err := token.GetClaimsFromToken(tokenString)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	token.SetJWTClaimsContext(c, claims)
 
 	c.Next()
 }

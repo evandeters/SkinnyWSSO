@@ -14,6 +14,12 @@ type MyJWTClaims struct {
 	UserInfo interface{}
 }
 
+type UserJWTData struct {
+	Username string
+	Groups   []string
+	Admin    bool
+}
+
 var privateKey, publicKey, keyReadErr = ReadKeyFiles()
 
 func Create(sub string, userInfo interface{}) (string, error) {
