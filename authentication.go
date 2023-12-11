@@ -192,6 +192,7 @@ func isAdmin(c *gin.Context) (bool, error) {
 	}
 
 	tokenString, err := c.Cookie("auth_token")
+	fmt.Println(tokenString)
 	if err != nil {
 		return false, err
 	}
