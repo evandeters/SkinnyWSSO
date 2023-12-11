@@ -206,17 +206,24 @@ func adminAuthRequired(c *gin.Context) {
 
 	tok := c.Param("token")
 
-	jwtToken, err := InitializeJWT()
+	prvKey, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
+		return
+	}
+
+	pubKey, err := os.ReadFile(os.Getenv("JWT_PUBLIC_KEY"))
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
+	jwtToken := token.NewJWT(prvKey, pubKey)
 
 	dat, err := jwtToken.Validate(tok)
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Unauthorized"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 	data, ok := dat.([]byte)
