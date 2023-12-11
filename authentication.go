@@ -17,6 +17,12 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
+func getId(c *gin.Context) interface{} {
+	session := sessions.Default(c)
+	id := session.Get("id")
+	return id
+}
+
 func authRequired(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("id")

@@ -18,14 +18,13 @@ func addPublicRoutes(g *gin.RouterGroup) {
 }
 
 func addPrivateRoutes(g *gin.RouterGroup) {
+	g.GET("/dashboard", viewDashboard)
 	g.GET("/logout", logout)
-	g.GET("/dashboard", func(c *gin.Context) {
-		c.HTML(200, "dashboard.html", gin.H{})
-	})
 }
 
 func addAdminRoutes(g *gin.RouterGroup) {
 	g.GET("/admin", viewAdmin)
+
 	g.GET("/api/users/list", listUsers)
 	g.DELETE("/api/users/delete/:username", deleteUser)
 }
@@ -33,7 +32,12 @@ func addAdminRoutes(g *gin.RouterGroup) {
 // View handlers
 
 func viewIndex(c *gin.Context) {
-	c.HTML(200, "index.html", gin.H{})
+	id := getId(c)
+	if id == nil {
+		c.HTML(200, "index.html", gin.H{})
+	} else {
+		c.Redirect(302, "/dashboard")
+	}
 }
 
 func viewRedirect(c *gin.Context) {
@@ -50,6 +54,10 @@ func viewRegister(c *gin.Context) {
 
 func viewAdmin(c *gin.Context) {
 	c.HTML(200, "admin.html", gin.H{})
+}
+
+func viewDashboard(c *gin.Context) {
+	c.HTML(200, "dashboard.html", gin.H{})
 }
 
 // API handlers
