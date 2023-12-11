@@ -19,9 +19,7 @@ func addPublicRoutes(g *gin.RouterGroup) {
 
 func addPrivateRoutes(g *gin.RouterGroup) {
 	g.GET("/logout", logout)
-	g.GET("/dashboard", func(c *gin.Context) {
-		c.HTML(200, "dashboard.html", gin.H{})
-	})
+	g.GET("/dashboard", viewDashboard)
 }
 
 func addAdminRoutes(g *gin.RouterGroup) {
@@ -34,6 +32,10 @@ func addAdminRoutes(g *gin.RouterGroup) {
 
 func viewIndex(c *gin.Context) {
 	c.HTML(200, "index.html", gin.H{})
+}
+
+func viewDashboard(c *gin.Context) {
+	c.HTML(200, "dashboard.html", gin.H{})
 }
 
 func viewRedirect(c *gin.Context) {

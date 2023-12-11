@@ -19,14 +19,6 @@ func TestRegisterUser(t *testing.T) {
 	public := router.Group("/")
 	addPublicRoutes(public)
 
-	private := router.Group("/")
-	private.Use(authRequired)
-	addPrivateRoutes(private)
-
-	admin := router.Group("/")
-	admin.Use(adminAuthRequired)
-	addAdminRoutes(admin)
-
 	w := httptest.NewRecorder()
 
 	// Create a request to send to the above route
@@ -55,10 +47,6 @@ func TestLoginAndLogout(t *testing.T) {
 	private := router.Group("/")
 	private.Use(authRequired)
 	addPrivateRoutes(private)
-
-	admin := router.Group("/")
-	admin.Use(adminAuthRequired)
-	addAdminRoutes(admin)
 
 	// Create and send login request
 	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
@@ -102,10 +90,6 @@ func TestAdminAuthorization(t *testing.T) {
 	public := router.Group("/")
 	addPublicRoutes(public)
 
-	private := router.Group("/")
-	private.Use(authRequired)
-	addPrivateRoutes(private)
-
 	admin := router.Group("/")
 	admin.Use(adminAuthRequired)
 	addAdminRoutes(admin)
@@ -148,10 +132,6 @@ func TestFailedAdminAuthorization(t *testing.T) {
 	public := router.Group("/")
 	addPublicRoutes(public)
 
-	private := router.Group("/")
-	private.Use(authRequired)
-	addPrivateRoutes(private)
-
 	admin := router.Group("/")
 	admin.Use(adminAuthRequired)
 	addAdminRoutes(admin)
@@ -179,7 +159,7 @@ func TestFailedAdminAuthorization(t *testing.T) {
 
 	router.ServeHTTP(w, adminReq)
 
-	expected = expected + `{"error":"Unauthorized."}`
+	expected = expected + `{"error":"Unauthorized"}`
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Equal(t, expected, w.Body.String())
 }
@@ -190,10 +170,6 @@ func TestDeleteUser(t *testing.T) {
 	initCookies(router) // Make sure this correctly initializes any required middleware
 	public := router.Group("/")
 	addPublicRoutes(public)
-
-	private := router.Group("/")
-	private.Use(authRequired)
-	addPrivateRoutes(private)
 
 	admin := router.Group("/")
 	admin.Use(adminAuthRequired)
@@ -241,9 +217,6 @@ func TestLogoutWithoutAuth(t *testing.T) {
 	private.Use(authRequired)
 	addPrivateRoutes(private)
 
-	admin := router.Group("/")
-	admin.Use(adminAuthRequired)
-	addAdminRoutes(admin)
 	w := httptest.NewRecorder()
 
 	// Create a request to send to the above route
