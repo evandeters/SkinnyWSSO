@@ -39,7 +39,10 @@ func pageData(c *gin.Context, specialData gin.H) gin.H {
 
 	data := gin.H{}
 
-	tok := c.Param("token")
+	tok, err := c.Cookie("auth_token")
+	if err != nil {
+		data["error"] = err
+	}
 	claims, err := token.GetClaimsFromToken(tok)
 	if err != nil {
 		data["error"] = err
@@ -68,6 +71,7 @@ func viewIndex(c *gin.Context) {
 }
 
 func viewDashboard(c *gin.Context) {
+
 	c.HTML(http.StatusOK, "dashboard.html", pageData(c, gin.H{}))
 }
 
