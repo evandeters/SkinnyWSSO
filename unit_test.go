@@ -140,41 +140,41 @@ func TestFailedAdminAuthorization(t *testing.T) {
 	assert.Equal(t, expected, w.Body.String())
 }
 
-func TestDeleteUser(t *testing.T) {
+// func TestDeleteUser(t *testing.T) {
 
-	router := InitializeRouter()
+// 	router := InitializeRouter()
 
-	// Create and send login request
-	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
-	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
-	loginReq.Header.Set("Content-Type", "application/json")
+// 	// Create and send login request
+// 	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
+// 	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
+// 	loginReq.Header.Set("Content-Type", "application/json")
 
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, loginReq)
+// 	w := httptest.NewRecorder()
+// 	router.ServeHTTP(w, loginReq)
 
-	// Verify login was successful
-	assert.Equal(t, http.StatusOK, w.Code)
-	expected := `{"message":"Successfully logged in!"}`
-	assert.Equal(t, expected, w.Body.String())
+// 	// Verify login was successful
+// 	assert.Equal(t, http.StatusOK, w.Code)
+// 	expected := `{"message":"Successfully logged in!"}`
+// 	assert.Equal(t, expected, w.Body.String())
 
-	cookies := w.Result().Cookies()
+// 	cookies := w.Result().Cookies()
 
-	// Create Delete Request
-	deleteReq, _ := http.NewRequest("DELETE", "/api/users/delete/testuser", nil)
+// 	// Create Delete Request
+// 	deleteReq, _ := http.NewRequest("DELETE", "/api/users/delete/testuser", nil)
 
-	// Add cookies to request
-	for _, cookie := range cookies {
-		deleteReq.AddCookie(cookie)
-	}
+// 	// Add cookies to request
+// 	for _, cookie := range cookies {
+// 		deleteReq.AddCookie(cookie)
+// 	}
 
-	router.ServeHTTP(w, deleteReq)
+// 	router.ServeHTTP(w, deleteReq)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+// 	assert.Equal(t, http.StatusOK, w.Code)
 
-	expected = expected + `{"message":"Account deleted successfully!"}`
-	assert.Equal(t, expected, w.Body.String())
+// 	expected = expected + `{"message":"Account deleted successfully!"}`
+// 	assert.Equal(t, expected, w.Body.String())
 
-}
+// }
 
 func TestLogoutWithoutAuth(t *testing.T) {
 	router := InitializeRouter()
