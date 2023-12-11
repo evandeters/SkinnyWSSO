@@ -225,9 +225,9 @@ func TestLogoutWithoutAuth(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Check the status code is what we expect.
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	// Check the response body is what we expect.
-	expected := `{"message":"No session."}`
+	expected := `{"error":"Unauthorized"}`
 	assert.Equal(t, expected, w.Body.String())
 }
