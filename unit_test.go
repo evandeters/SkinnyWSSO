@@ -16,7 +16,17 @@ import (
 func TestRegisterUser(t *testing.T) {
 	router := gin.Default()
 	initCookies(router)
-	router.POST("/api/users/register", register)
+	public := router.Group("/")
+	addPublicRoutes(public)
+
+	private := router.Group("/")
+	private.Use(authRequired)
+	addPrivateRoutes(private)
+
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
+
 	w := httptest.NewRecorder()
 
 	// Create a request to send to the above route
@@ -39,8 +49,16 @@ func TestLoginAndLogout(t *testing.T) {
 
 	router := gin.Default()
 	initCookies(router) // Make sure this correctly initializes any required middleware
-	router.POST("/api/users/login", login)
-	router.GET("/logout", logout)
+	public := router.Group("/")
+	addPublicRoutes(public)
+
+	private := router.Group("/")
+	private.Use(authRequired)
+	addPrivateRoutes(private)
+
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
 
 	// Create and send login request
 	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
@@ -81,7 +99,16 @@ func TestAdminAuthorization(t *testing.T) {
 
 	router := gin.Default()
 	initCookies(router) // Make sure this correctly initializes any required middleware
-	router.POST("/api/users/login", login)
+	public := router.Group("/")
+	addPublicRoutes(public)
+
+	private := router.Group("/")
+	private.Use(authRequired)
+	addPrivateRoutes(private)
+
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
 
 	// Create and send login request
 	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
@@ -118,8 +145,16 @@ func TestFailedAdminAuthorization(t *testing.T) {
 
 	router := gin.Default()
 	initCookies(router) // Make sure this correctly initializes any required middleware
-	router.POST("/api/users/login", login)
-	router.GET("/api/users/list", listUsers)
+	public := router.Group("/")
+	addPublicRoutes(public)
+
+	private := router.Group("/")
+	private.Use(authRequired)
+	addPrivateRoutes(private)
+
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
 
 	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
 	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
@@ -153,8 +188,16 @@ func TestDeleteUser(t *testing.T) {
 
 	router := gin.Default()
 	initCookies(router) // Make sure this correctly initializes any required middleware
-	router.POST("/api/users/login", login)
-	router.DELETE("/api/users/delete/:username", deleteUser)
+	public := router.Group("/")
+	addPublicRoutes(public)
+
+	private := router.Group("/")
+	private.Use(authRequired)
+	addPrivateRoutes(private)
+
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
 
 	// Create and send login request
 	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
@@ -191,7 +234,16 @@ func TestDeleteUser(t *testing.T) {
 func TestLogoutWithoutAuth(t *testing.T) {
 	router := gin.Default()
 	initCookies(router)
-	router.GET("/logout", logout)
+	public := router.Group("/")
+	addPublicRoutes(public)
+
+	private := router.Group("/")
+	private.Use(authRequired)
+	addPrivateRoutes(private)
+
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
 	w := httptest.NewRecorder()
 
 	// Create a request to send to the above route
