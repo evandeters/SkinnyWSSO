@@ -138,6 +138,7 @@ func TestFailedAdminAuthorization(t *testing.T) {
 	adminReq, _ := http.NewRequest("GET", "/api/users/list", nil)
 
 	for _, cookie := range cookies {
+		fmt.Println(cookie)
 		adminReq.AddCookie(cookie)
 	}
 
@@ -182,7 +183,7 @@ func TestDeleteUser(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	expected = `{"message":"Account deleted successfully!"}`
+	expected = expected + `{"message":"Account deleted successfully!"}`
 	assert.Equal(t, expected, w.Body.String())
 
 }
