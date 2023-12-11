@@ -204,7 +204,7 @@ func isAdmin(c *gin.Context) (bool, error) {
 
 	if val, ok := claims["UserInfo"]; ok {
 		userInfo := val.(map[string]interface{})
-		if userInfo["admin"] != true {
+		if userInfo["Admin"] != true {
 			return false, errors.New("Not admin")
 		}
 	} else {
@@ -215,7 +215,6 @@ func isAdmin(c *gin.Context) (bool, error) {
 
 func adminAuthRequired(c *gin.Context) {
 	isAdmin, err := isAdmin(c)
-	fmt.Println(isAdmin)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
