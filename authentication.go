@@ -177,13 +177,13 @@ func adminAuthRequired(c *gin.Context) {
 
 	tokenString, err := c.Cookie("auth_token")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized1"})
 		return
 	}
 
 	claims, err := token.GetClaimsFromToken(tokenString)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized2"})
 		return
 	}
 
@@ -191,7 +191,7 @@ func adminAuthRequired(c *gin.Context) {
 		userInfo := val.(map[string]string)
 		fmt.Println(userInfo)
 	} else {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized3"})
 		return
 	}
 
