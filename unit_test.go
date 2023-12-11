@@ -153,11 +153,12 @@ func TestFailedAdminAuthorization(t *testing.T) {
 	adminReq, _ := http.NewRequest("GET", "/api/users/list", nil)
 
 	for _, cookie := range cookies {
-		fmt.Println(cookie)
 		adminReq.AddCookie(cookie)
 	}
 
 	router.ServeHTTP(w, adminReq)
+
+	fmt.Println(w)
 
 	expected = expected + `{"error":"Unauthorized"}`
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
