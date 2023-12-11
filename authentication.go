@@ -216,7 +216,7 @@ func adminAuthRequired(c *gin.Context) {
 	dat, err := jwtToken.Validate(tok)
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Invalid Session"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Unauthorized"})
 		return
 	}
 	data, ok := dat.([]byte)
