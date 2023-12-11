@@ -45,11 +45,6 @@ func login(c *gin.Context) {
 
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
-	redirect := c.Request.Referer()
-
-	if redirect == "" {
-		redirect = "/dashboard"
-	}
 
 	userDN := "uid=" + username + ",ou=users,dc=skinny,dc=wsso"
 
@@ -111,7 +106,6 @@ func login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
-	c.Redirect(http.StatusSeeOther, redirect)
 }
 
 func logout(c *gin.Context) {
