@@ -72,7 +72,6 @@ func viewIndex(c *gin.Context) {
 }
 
 func viewDashboard(c *gin.Context) {
-
 	c.HTML(http.StatusOK, "dashboard.html", pageData(c, gin.H{}))
 }
 
