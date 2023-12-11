@@ -40,6 +40,10 @@ func viewIndex(c *gin.Context) {
 	}
 }
 
+func viewDashboard(c *gin.Context) {
+	c.HTML(200, "dashboard.html", gin.H{})
+}
+
 func viewRedirect(c *gin.Context) {
 	c.HTML(200, "login_redirect.html", gin.H{})
 }

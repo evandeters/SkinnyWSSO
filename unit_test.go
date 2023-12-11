@@ -14,9 +14,9 @@ import (
 )
 
 func TestRegisterUser(t *testing.T) {
-	router := gin.Default()
-	initCookies(router)
-	router.POST("/api/users/register", register)
+
+	router := InitializeRouter()
+
 	w := httptest.NewRecorder()
 
 	// Create a request to send to the above route
@@ -33,14 +33,12 @@ func TestRegisterUser(t *testing.T) {
 	// Check the response body is what we expect.
 	expected := `{"message":"Account created successfully!"}`
 	assert.Equal(t, expected, w.Body.String())
+
 }
 
 func TestLoginAndLogout(t *testing.T) {
 
-	router := gin.Default()
-	initCookies(router) // Make sure this correctly initializes any required middleware
-	router.POST("/api/users/login", login)
-	router.GET("/logout", logout)
+	router := InitializeRouter()
 
 	// Create and send login request
 	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
@@ -79,9 +77,7 @@ func TestLoginAndLogout(t *testing.T) {
 
 func TestAdminAuthorization(t *testing.T) {
 
-	router := gin.Default()
-	initCookies(router) // Make sure this correctly initializes any required middleware
-	router.POST("/api/users/login", login)
+	router := InitializeRouter()
 
 	// Create and send login request
 	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
@@ -116,9 +112,7 @@ func TestAdminAuthorization(t *testing.T) {
 
 // func TestFailedAdminAuthorization(t *testing.T) {
 
-// 	router := gin.Default()
-// 	initCookies(router) // Make sure this correctly initializes any required middleware
-// 	router.POST("/api/users/login", login)
+// 	router := InitializeRouter()
 
 // 	loginBody := strings.NewReader(`{"username": "testuser", "password": "testpassword"}`)
 // 	loginReq, _ := http.NewRequest("POST", "/api/users/login", loginBody)
@@ -142,16 +136,13 @@ func TestAdminAuthorization(t *testing.T) {
 
 // 	router.ServeHTTP(w, adminReq)
 
-// 	expected = expected + `{"error":"Unauthorized."}`
-// 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+// 	expected = expected + `{"error":"Unauthorized"}`
 // 	assert.Equal(t, expected, w.Body.String())
 // }
 
 // func TestDeleteUser(t *testing.T) {
 
-// 	router := gin.Default()
-// 	initCookies(router) // Make sure this correctly initializes any required middleware
-// 	router.POST("/api/users/login", login)
+// 	router := InitializeRouter()
 
 // 	// Create and send login request
 // 	loginBody := strings.NewReader(fmt.Sprintf(`{"username": "%s", "password": "%s"}`, os.Getenv("WSSO_ADMIN_USR"), os.Getenv("WSSO_ADMIN_PSW")))
@@ -180,15 +171,14 @@ func TestAdminAuthorization(t *testing.T) {
 
 // 	assert.Equal(t, http.StatusOK, w.Code)
 
-// 	expected = `{"message":"Account deleted successfully!"}`
+// 	expected = expected + `{"message":"Account deleted successfully!"}`
 // 	assert.Equal(t, expected, w.Body.String())
 
 // }
 
 func TestLogoutWithoutAuth(t *testing.T) {
-	router := gin.Default()
-	initCookies(router)
-	router.GET("/logout", logout)
+	router := InitializeRouter()
+
 	w := httptest.NewRecorder()
 
 	// Create a request to send to the above route
@@ -199,9 +189,26 @@ func TestLogoutWithoutAuth(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Check the status code is what we expect.
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	// Check the response body is what we expect.
-	expected := `{"message":"No session."}`
+	expected := `{"error":"Unauthorized"}`
 	assert.Equal(t, expected, w.Body.String())
+}
+
+func InitializeRouter() *gin.Engine {
+	router := gin.Default()
+	initCookies(router)
+	public := router.Group("/")
+	addPublicRoutes(public)
+
+	private := router.Group("/")
+	private.Use(authRequired)
+	addPrivateRoutes(private)
+
+	admin := router.Group("/")
+	admin.Use(adminAuthRequired)
+	addAdminRoutes(admin)
+
+	return router
 }

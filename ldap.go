@@ -116,17 +116,32 @@ func getLdapUsers() ([]string, error) {
 	return users, nil
 }
 
-func isMemberOf(username string, group string) (bool, error) {
-	l, err := ldap.DialURL("ldap://localhost:389")
+func IsMemberOf(username string, group string) (bool, error) {
+	groups, err := GetGroupMembership(username)
 	if err != nil {
 		return false, err
+	}
+
+	for _, g := range groups {
+		if g == group {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func GetGroupMembership(username string) ([]string, error) {
+	l, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return []string{}, err
 	}
 	defer l.Close()
 
 	// Bind with Admin
 	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
 	if err != nil {
-		return false, err
+		return []string{}, err
 	}
 
 	uniqueMember := fmt.Sprintf("uid=%s,ou=users,dc=skinny,dc=wsso", username)
@@ -141,14 +156,13 @@ func isMemberOf(username string, group string) (bool, error) {
 
 	sr, err := l.Search(searchRequest)
 	if err != nil {
-		return false, err
+		return []string{}, err
 	}
 
+	var groups []string
 	for _, entry := range sr.Entries {
-		if entry.GetAttributeValue("cn") == group {
-			return true, nil
-		}
+		groups = append(groups, entry.GetAttributeValue("cn"))
 	}
 
-	return false, nil
+	return groups, nil
 }
