@@ -20,12 +20,12 @@
 <body>
     <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3">
     </div>
-    User: 
-    {{.user}}
+    User: {{.user}}
+    <p>Error: {{ .error }}</p>
     {{ if .user }}
     {{ template "navbar.html" }}
     {{ end }}
-    
+
     {{ if .error }}
     <div id="error-container" class="bg-danger p-2 text-white" style="--bs-bg-opacity: .75;">
         <p>{{ .error }}</p>
