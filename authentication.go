@@ -97,7 +97,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("auth_token", tok, 3600, "/", "dev.gfed", true, false)
+	c.SetCookie("auth_token", tok, 3600, "/", "dev.gfed", false, true)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)
