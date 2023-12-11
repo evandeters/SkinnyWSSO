@@ -191,7 +191,7 @@ func adminAuthRequired(c *gin.Context) {
 	}
 
 	if val, ok := claims["UserInfo"]; ok {
-		userInfo := val.(map[string]string)
+		userInfo := val.(map[string]interface{})
 		fmt.Println(userInfo)
 	} else {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized3"})
