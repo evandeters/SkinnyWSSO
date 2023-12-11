@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"SkinnyWSSO/token"
@@ -47,6 +48,7 @@ func pageData(c *gin.Context, specialData gin.H) gin.H {
 	if err != nil {
 		data["error"] = err
 	}
+	fmt.Printf("%+v\n", claims)
 	data["user"] = claims
 	// iterate over all keys in specialData and add them to data
 	for key, value := range specialData {
