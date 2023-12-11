@@ -20,12 +20,18 @@
 <body>
     <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3">
     </div>
-    {{ if .user }}
-    {{ template "navbar.html" . }}
-    {{ end }}
 
-    {{ if .error }}
-    <div id="error-container" class="bg-danger p-2 text-white" style="--bs-bg-opacity: .75;">
-        <p>{{ .error }}</p>
-    </div>
-    {{ end }}
+
+    <div class="vh-100 container-fluid">
+        <div class="row h-100">
+            <div class="col-2">
+                {{ if .user }}
+                {{ template "navbar.html" . }}
+                {{ end }}
+            </div>
+            <div class="col-10">
+                {{ if .error }}
+                <div id="error-container" class="bg-danger p-2 text-white" style="--bs-bg-opacity: .75;">
+                    <p>{{ .error }}</p>
+                </div>
+                {{ end }}
