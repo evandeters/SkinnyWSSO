@@ -25,10 +25,9 @@ func Create(sub string, userInfo interface{}) (string, error) {
 		return "", fmt.Errorf("create: parse key: %w", err)
 	}
 
-	token := jwt.New(jwt.SigningMethodRS256)
 	exp := time.Now().Add(time.Hour * 12)
 
-	token.Claims = &MyJWTClaims{
+	claims := &MyJWTClaims{
 		&jwt.RegisteredClaims{
 			Subject:   sub,
 			ExpiresAt: jwt.NewNumericDate(exp),
@@ -36,20 +35,25 @@ func Create(sub string, userInfo interface{}) (string, error) {
 		userInfo,
 	}
 
-	val, err := token.SignedString(key)
+	token, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(key)
 	if err != nil {
 		return "", fmt.Errorf("create: sign token: %w", err)
 	}
 
-	return val, nil
+	return token, nil
 }
 
 func GetClaimsFromToken(tokenString string) (jwt.MapClaims, error) {
+	key, err := jwt.ParseRSAPublicKeyFromPEM(publicKey)
+	if err != nil {
+		return nil, fmt.Errorf("get claims: parse key: %w", err)
+	}
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return publicKey, nil
+		return key, nil
 	})
 	if err != nil {
 		return nil, err
