@@ -181,8 +181,11 @@ func adminAuthRequired(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(tokenString)
+
 	claims, err := token.GetClaimsFromToken(tokenString)
 	if err != nil {
+		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized2"})
 		return
 	}

@@ -13,9 +13,7 @@ type MyJWTClaims struct {
 	*jwt.RegisteredClaims
 	UserInfo interface{}
 }
-type claimskey int
 
-var claimsKey claimskey
 var privateKey, publicKey, keyReadErr = ReadKeyFiles()
 
 func Create(sub string, userInfo interface{}) (string, error) {
