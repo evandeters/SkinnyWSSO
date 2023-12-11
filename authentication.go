@@ -21,12 +21,6 @@ func getId(c *gin.Context) interface{} {
 	return id
 }
 
-type jwtData struct {
-	Username string   `json:"username"`
-	Groups   []string `json:"groups"`
-	Admin    bool     `json:"admin"`
-}
-
 func authRequired(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("id")
@@ -51,6 +45,11 @@ func login(c *gin.Context) {
 
 	username := jsonData["username"].(string)
 	password := jsonData["password"].(string)
+	redirect := c.Request.Referer()
+
+	if redirect == "" {
+		redirect = "/dashboard"
+	}
 
 	userDN := "uid=" + username + ",ou=users,dc=skinny,dc=wsso"
 
@@ -90,7 +89,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	jwtContent := jwtData{
+	jwtContent := token.UserJWTData{
 		Username: username,
 		Groups:   groups,
 		Admin:    isAdmin,
@@ -112,6 +111,7 @@ func login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
+	c.Redirect(http.StatusSeeOther, redirect)
 }
 
 func logout(c *gin.Context) {
@@ -122,6 +122,12 @@ func logout(c *gin.Context) {
 
 	if cookie != nil && err == nil {
 		c.SetCookie("auth_token", "", -1, "/", "*", false, true)
+	}
+
+	err = session.Save()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
 	}
 
 	if id == nil {
@@ -187,8 +193,6 @@ func adminAuthRequired(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(tokenString)
-
 	claims, err := token.GetClaimsFromToken(tokenString)
 	if err != nil {
 		fmt.Println(err)
@@ -209,31 +213,4 @@ func adminAuthRequired(c *gin.Context) {
 
 	c.Next()
 
-}
-
-func AddClaimsToContext(c *gin.Context) {
-	session := sessions.Default(c)
-	id := session.Get("id")
-	if id == nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	auth_header := c.GetHeader("Authorization")
-	if !strings.HasPrefix(auth_header, "Bearer ") {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	tokenString := strings.TrimPrefix(auth_header, "Bearer ")
-
-	claims, err := token.GetClaimsFromToken(tokenString)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	token.SetJWTClaimsContext(c, claims)
-
-	c.Next()
 }
