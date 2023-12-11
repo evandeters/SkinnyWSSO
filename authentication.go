@@ -16,32 +16,59 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-type jwtData struct {
-	Username string   `json:"username"`
-	Groups   []string `json:"groups"`
-	Admin    bool     `json:"admin"`
-}
-
-func isLoggedIn(c *gin.Context) (bool, error) {
-	session := sessions.Default(c)
-	id := session.Get("id")
-	if id == nil {
-		return false, errors.New("No ID")
-	}
-	return true, nil
-}
-
-func authRequired(c *gin.Context) {
-	_, err := isLoggedIn(c)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-	c.Next()
-}
-
 func initCookies(router *gin.Engine) {
 	router.Use(sessions.Sessions("kamino", cookie.NewStore([]byte("kamino")))) // change to secret
+}
+
+func logout(c *gin.Context) {
+	session := sessions.Default(c)
+	id := session.Get("id")
+
+	cookie, err := c.Request.Cookie("token")
+
+	if cookie != nil && err == nil {
+		c.SetCookie("auth_token", "", -1, "/", "*", false, true)
+	}
+
+	err = session.Save()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+
+	if id == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "No session."})
+		return
+	}
+	session.Delete("id")
+	if err := session.Save(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out!"})
+	c.Redirect(http.StatusSeeOther, "/")
+}
+
+func register(c *gin.Context) {
+	var jsonData map[string]interface{}
+	if err := c.ShouldBindJSON(&jsonData); err != nil {
+		fmt.Print(&jsonData)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing fields"})
+		return
+	}
+
+	username := jsonData["username"].(string)
+	password := jsonData["password"].(string)
+	email := jsonData["email"].(string)
+
+	message, err := registerUser(username, password, email)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": message})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Account created successfully!"})
 }
 
 func login(c *gin.Context) {
@@ -117,68 +144,40 @@ func login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
 }
 
-func logout(c *gin.Context) {
+func isLoggedIn(c *gin.Context) (bool, error) {
 	session := sessions.Default(c)
 	id := session.Get("id")
-
-	cookie, err := c.Request.Cookie("token")
-
-	if cookie != nil && err == nil {
-		c.SetCookie("auth_token", "", -1, "/", "*", false, true)
-	}
-
-	err = session.Save()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
-		return
-	}
-
 	if id == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "No session."})
-		return
+		return false, errors.New("No ID")
 	}
-	session.Delete("id")
-	if err := session.Save(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out!"})
-	c.Redirect(http.StatusSeeOther, "/")
+	return true, nil
 }
 
-func register(c *gin.Context) {
-	var jsonData map[string]interface{}
-	if err := c.ShouldBindJSON(&jsonData); err != nil {
-		fmt.Print(&jsonData)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing fields"})
-		return
-	}
-
-	username := jsonData["username"].(string)
-	password := jsonData["password"].(string)
-	email := jsonData["email"].(string)
-
-	message, err := registerUser(username, password, email)
-
+func authRequired(c *gin.Context) {
+	_, err := isLoggedIn(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": message})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Account created successfully!"})
+	c.Next()
 }
 
 func authFromToken(c *gin.Context) {
 	tok := c.Param("token")
 
-	claims, _ := token.GetClaimsFromToken(tok)
+	claims, err := token.GetClaimsFromToken(tok)
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token."})
+		return
+	}
 
 	if claims == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token."})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
 }
 
 func isAdmin(c *gin.Context) (bool, error) {

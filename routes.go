@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"SkinnyWSSO/token"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,9 +36,15 @@ func addAdminRoutes(g *gin.RouterGroup) {
 // Misc functions
 
 func pageData(c *gin.Context, specialData gin.H) gin.H {
-	var data gin.H
-	data["isAdmin"] = false
 
+	data := gin.H{}
+
+	tok := c.Param("token")
+	claims, err := token.GetClaimsFromToken(tok)
+	if err != nil {
+		data["error"] = err
+	}
+	data["user"] = claims
 	// iterate over all keys in specialData and add them to data
 	for key, value := range specialData {
 		data[key] = value
