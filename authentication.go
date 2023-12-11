@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,22 +16,24 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-func getId(c *gin.Context) interface{} {
-	session := sessions.Default(c)
-	id := session.Get("id")
-	return id
-}
-
 type jwtData struct {
 	Username string   `json:"username"`
 	Groups   []string `json:"groups"`
 	Admin    bool     `json:"admin"`
 }
 
-func authRequired(c *gin.Context) {
+func isLoggedIn(c *gin.Context) (bool, error) {
 	session := sessions.Default(c)
 	id := session.Get("id")
 	if id == nil {
+		return false, errors.New("No ID")
+	}
+	return true, nil
+}
+
+func authRequired(c *gin.Context) {
+	_, err := isLoggedIn(c)
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -172,46 +175,56 @@ func authFromToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!."})
 }
 
-func adminAuthRequired(c *gin.Context) {
+func isAdmin(c *gin.Context) (bool, error) {
 
-	session := sessions.Default(c)
-	id := session.Get("id")
-	if id == nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
+	isLoggedIn, err := isLoggedIn(c)
+	if err != nil {
+		return false, err
+	}
+
+	if isLoggedIn == false {
+		return false, errors.New("Not logged in")
 	}
 
 	tokenString, err := c.Cookie("auth_token")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
+		return false, err
 	}
 
 	fmt.Println(tokenString)
 
 	claims, err := token.GetClaimsFromToken(tokenString)
 	if err != nil {
-		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
+		return false, err
 	}
 
 	if val, ok := claims["UserInfo"]; ok {
 		userInfo := val.(map[string]interface{})
 		if userInfo["admin"] != true {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			return
+			return false, errors.New("Not admin")
 		}
 	} else {
+		return false, errors.New("No user info")
+	}
+	return true, nil
+}
+
+func adminAuthRequired(c *gin.Context) {
+	isAdmin, err := isAdmin(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	if isAdmin == false {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
 	c.Next()
-
 }
 
-func AddClaimsToContext(c *gin.Context) {
+func addClaimsToContext(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("id")
 	if id == nil {
