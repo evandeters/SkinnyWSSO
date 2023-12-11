@@ -41,6 +41,7 @@ func pageData(c *gin.Context, specialData gin.H) gin.H {
 	data := gin.H{}
 
 	tok, err := c.Cookie("auth_token")
+	fmt.Printf("tok: %s\n", tok)
 	if err != nil {
 		data["error"] = err
 	}
