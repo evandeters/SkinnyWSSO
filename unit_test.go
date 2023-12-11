@@ -105,7 +105,7 @@ func TestAdminAuthorization(t *testing.T) {
 	router.ServeHTTP(w, adminReq)
 
 	expected = expected + `{"users":["admin","testuser"]}`
-	assert.Equal(t, expected, w.Code)
+	assert.Equal(t, expected, w.Body.String())
 
 	// Now try to access the admin page with a non-admin user
 
