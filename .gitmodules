@@ -1,0 +1,3 @@
+[submodule "WSSOSampleApp"]
+	path = WSSOSampleApp
+	url = https://github.com/evandeters/WSSOSampleApp
