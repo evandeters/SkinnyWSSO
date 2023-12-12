@@ -7,18 +7,18 @@
         <span class="visually-hidden">Icon-only</span>
     </a>
     <ul class="nav nav-pills nav-flush flex-column mb-auto">
-        <li class="nav-item">
+        <li class="nav-item" style="height: 4.5rem">
             <a href="/dashboard" class="nav-link py-3 border-bottom rounded-0 text-nowrap">
-                <div class="d-flex flex-row" style="margin-left: 10px">
+                <div class="d-flex flex-row align-items-center" style="margin-left: 10px;">
                     <i class="fa-solid fa-gauge"></i>
                     <p>Dashboard</p>
                 </div>
             </a>
         </li>
         {{ if .user.UserInfo.Admin }}
-        <li class="nav-item">
+        <li class="nav-item" style="height: 4.5rem">
             <a href="/admin" class="nav-link py-3 border-bottom rounded-0 text-nowrap">
-                <div class="d-flex flex-row" style="margin-left: 10px">
+                <div class="d-flex flex-row align-items-center" style="margin-left: 10px;">
                     <i class="fa-solid fa-user-tie"></i>
                     <p>Admin Panel</p>
                 </div>
