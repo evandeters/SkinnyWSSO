@@ -20,12 +20,12 @@
 <body>
     <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3">
     </div>
+    {{ if .user }}
+    {{ template "navbar.html" . }}
+    {{ end }}
     <div class="d-flex flex-row vh-100">
-        {{ if .user }}
-        {{ template "navbar.html" . }}
-        {{ end }}
 
-        <div class="">
+        <div class="container-fluid p-0" {{ if .user }}style="margin-left: 4.5rem;"{{ end }}>
             {{ if .error }}
             <div id="error-container" class="bg-danger p-2 text-white" style="--bs-bg-opacity: .75;">
                 <p>{{ .error }}</p>

@@ -10,6 +10,7 @@ import (
 
 func addPublicRoutes(g *gin.RouterGroup) {
 	g.GET("/", viewIndex)
+	g.GET("/404", view404)
 	g.GET("/login/redirect", viewRedirect)
 	g.GET("/login", viewLogin)
 	g.GET("/register", viewRegister)
@@ -69,6 +70,10 @@ func viewIndex(c *gin.Context) {
 	} else {
 		c.Redirect(http.StatusFound, "/dashboard")
 	}
+}
+
+func view404(c *gin.Context) {
+	c.HTML(http.StatusOK, "404.html", pageData(c, gin.H{}))
 }
 
 func viewDashboard(c *gin.Context) {

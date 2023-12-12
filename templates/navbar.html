@@ -1,41 +1,36 @@
 <!-- create a unique bootstrap 5 navbar -->
 
-<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-        <svg class="bi me-2" width="40" height="32">
-            <use xlink:href="#bootstrap"></use>
-        </svg>
-        <span class="fs-4">SkinnyWSSO</span>
+<div class="d-flex flex-column flex-shrink-0 bg-dark position-absolute vh-100" style="width: 4.5rem;" id="navbar">
+    <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none border-bottom" data-bs-toggle="tooltip"
+        data-bs-placement="right" data-bs-original-title="Icon-only">
+        <img src="https://github.com/mdo.png" alt="mdo" width="40" height="40" class="rounded-circle">
+        <span class="visually-hidden">Icon-only</span>
     </a>
-    <hr>
-    <ul class="nav nav-pills flex-column mb-auto">
+    <ul class="nav nav-pills nav-flush flex-column mb-auto">
         <li class="nav-item">
-            <a href="/" class="nav-link active" aria-current="page">
-                <i class="fa-solid fa-house"></i>
-                Home
-            </a>
-        </li>
-        <li>
-            <a href="/dashboard" class="nav-link text-white">
-                <i class="fa-solid fa-gauge"></i>
-                Dashboard
+            <a href="/dashboard" class="nav-link py-3 border-bottom rounded-0 text-nowrap">
+                <div class="d-flex flex-row" style="margin-left: 10px">
+                    <i class="fa-solid fa-gauge"></i>
+                    <p>Dashboard</p>
+                </div>
             </a>
         </li>
         {{ if .user.UserInfo.Admin }}
-        <li>
-            <a href="/admin" class="nav-link text-white">
-                <i class="fa-solid fa-user-tie"></i>
-                Admin Panel
+        <li class="nav-item">
+            <a href="/admin" class="nav-link py-3 border-bottom rounded-0 text-nowrap">
+                <div class="d-flex flex-row" style="margin-left: 10px">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <p>Admin Panel</p>
+                </div>
             </a>
         </li>
         {{ end }}
     </ul>
-    <hr>
-    <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1"
+    <div class="dropdown border-top">
+        <a href="#"
+            class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle"
             data-bs-toggle="dropdown" aria-expanded="false">
-            <!-- <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2"> -->
-            <strong>{{.user.UserInfo.Username}}</strong>
+            <img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
             <li><a class="dropdown-item" href="/settings">Settings</a></li>
@@ -46,3 +41,32 @@
         </ul>
     </div>
 </div>
+<script>
+    // add the active class to nav-links if the current url matches the href
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.querySelector('p').classList.add('visually-hidden');
+
+        // remove the text from the nav-links but store them for later
+        if (link.href === window.location.href) {
+            link.classList.add('active');
+        }
+    });
+    const navbar = document.getElementById('navbar');
+    // expand the navbar only when hovered
+    navbar.addEventListener('mouseenter', () => {
+        navbar.style.width = '15rem';
+        // add text to the nav-links when expanded
+        navLinks.forEach(link => {
+            // hide the p from the nav-links
+            link.querySelector('p').classList.remove('visually-hidden');
+        });
+    });
+    navbar.addEventListener('mouseleave', () => {
+        navbar.style.width = '4.5rem';
+        // remove text from the nav-links when collapsed
+        navLinks.forEach(link => {
+            link.querySelector('p').classList.add('visually-hidden');
+        });
+    });
+</script>

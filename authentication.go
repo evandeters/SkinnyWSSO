@@ -45,7 +45,7 @@ func logout(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out!"})
+
 	c.Redirect(http.StatusSeeOther, "/")
 }
 
@@ -61,7 +61,7 @@ func register(c *gin.Context) {
 	password := jsonData["password"].(string)
 	email := jsonData["email"].(string)
 
-	message, err := registerUser(username, password, email)
+	message, err := RegisterUser(username, password, email)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": message})
@@ -133,7 +133,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("auth_token", tok, 3600, "/", "dev.gfed", false, true)
+	c.SetCookie("auth_token", tok, 3600, "/", "dev.gfed", false, false)
 
 	if err := session.Save(); err != nil {
 		fmt.Println(err)
@@ -141,7 +141,13 @@ func login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
+	redirect := c.Query("redirect")
+	if redirect == "undefined" || redirect == "" {
+		c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"redirect": redirect + "/?token=" + tok})
+	}
+
 }
 
 func isLoggedIn(c *gin.Context) (bool, error) {

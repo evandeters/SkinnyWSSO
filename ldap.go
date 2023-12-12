@@ -8,18 +8,11 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-func registerUser(username string, password string, email string) (string, error) {
-	l, err := ldap.DialURL("ldap://localhost:389")
-	if err != nil {
-		message := "Failed to connect to LDAP server."
-		return message, err
-	}
-	defer l.Close()
+func RegisterUser(username string, password string, email string) (string, error) {
 
-	// Bind with Admin
-	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
+	l, err := ConnectToLdap()
 	if err != nil {
-		message := "Failed to bind with LDAP server."
+		message := "Failed to bind with LDAP."
 		return message, err
 	}
 
@@ -52,18 +45,10 @@ func registerUser(username string, password string, email string) (string, error
 	return message, nil
 }
 
-func deleteLdapUser(username string) (string, error) {
-	l, err := ldap.DialURL("ldap://localhost:389")
+func DeleteLdapUser(username string) (string, error) {
+	l, err := ConnectToLdap()
 	if err != nil {
-		message := "Failed to connect to LDAP server."
-		return message, err
-	}
-	defer l.Close()
-
-	// Bind with Admin
-	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
-	if err != nil {
-		message := "Failed to bind with LDAP server."
+		message := "Failed to delete your account."
 		return message, err
 	}
 
@@ -79,19 +64,10 @@ func deleteLdapUser(username string) (string, error) {
 	return message, nil
 }
 
-func getLdapUsers() ([]string, error) {
-	l, err := ldap.DialURL("ldap://localhost:389")
+func GetLdapUsers() ([]string, error) {
+	l, err := ConnectToLdap()
 	if err != nil {
-		message := "Failed to connect to LDAP server."
-		return []string{message}, err
-	}
-	defer l.Close()
-
-	// Bind with Admin
-	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
-	if err != nil {
-		message := "Failed to bind with LDAP server."
-		return []string{message}, err
+		return []string{}, err
 	}
 
 	searchRequest := ldap.NewSearchRequest(
@@ -132,14 +108,7 @@ func IsMemberOf(username string, group string) (bool, error) {
 }
 
 func GetGroupMembership(username string) ([]string, error) {
-	l, err := ldap.DialURL("ldap://localhost:389")
-	if err != nil {
-		return []string{}, err
-	}
-	defer l.Close()
-
-	// Bind with Admin
-	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
+	l, err := ConnectToLdap()
 	if err != nil {
 		return []string{}, err
 	}
@@ -165,4 +134,93 @@ func GetGroupMembership(username string) ([]string, error) {
 	}
 
 	return groups, nil
+}
+
+func GetGroupMembers(group string) ([]string, error) {
+
+	l, err := ConnectToLdap()
+	if err != nil {
+		return []string{}, err
+	}
+
+	searchFilter := fmt.Sprintf("(&(objectClass=groupOfUniqueNames)(cn=%s))", group)
+	searchRequest := ldap.NewSearchRequest(
+		"ou=groups,dc=skinny,dc=wsso",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		searchFilter,
+		[]string{"uniqueMember"},
+		nil,
+	)
+
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		return []string{}, err
+	}
+
+	var members []string
+	for _, entry := range sr.Entries {
+		for _, member := range entry.GetAttributeValues("uniqueMember") {
+			member = strings.Split(member, ",")[0]
+			member = strings.Split(member, "=")[1]
+			members = append(members, member)
+		}
+	}
+
+	return members, nil
+
+}
+
+func AddUserToGroup(username string, group string) (string, error) {
+
+	l, err := ConnectToLdap()
+	if err != nil {
+		message := "Failed to add user to group."
+		return message, err
+	}
+
+	modifyRequest := ldap.NewModifyRequest("cn="+group+",ou=groups,dc=skinny,dc=wsso", nil)
+	modifyRequest.Add("uniqueMember", []string{"uid=" + username + ",ou=users,dc=skinny,dc=wsso"})
+	err = l.Modify(modifyRequest)
+
+	if err != nil {
+		message := fmt.Sprintf("Failed to add %s to %s!", username, group)
+		return message, err
+	}
+
+	message := fmt.Sprintf("Successfully added %s to %s!", username, group)
+	return message, nil
+
+}
+
+func RemoveUserFromGroup(username string, group string) (string, error) {
+
+	l, err := ConnectToLdap()
+	if err != nil {
+		message := "Failed to remove user from group."
+		return message, err
+	}
+
+	modifyRequest := ldap.NewModifyRequest("cn="+group+",ou=groups,dc=skinny,dc=wsso", nil)
+	modifyRequest.Delete("uniqueMember", []string{"uid=" + username + ",ou=users,dc=skinny,dc=wsso"})
+	err = l.Modify(modifyRequest)
+
+	if err != nil {
+		message := fmt.Sprintf("Failed to remove %s from %s!", username, group)
+		return message, err
+	}
+
+	message := fmt.Sprintf("Successfully removed %s from %s!", username, group)
+	return message, nil
+
+}
+
+func ConnectToLdap() (*ldap.Conn, error) {
+	l, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return nil, err
+	}
+
+	err = l.Bind("cn=admin,dc=skinny,dc=wsso", os.Getenv("LDAP_ADMIN_PASSWORD"))
+
+	return l, nil
 }

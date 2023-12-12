@@ -116,3 +116,7 @@ body {
 h1 {
     font-weight: 700;
 }
+
+#navbar {
+    transition: all 0.2s ease-in-out;
+}

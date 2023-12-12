@@ -14,6 +14,9 @@ func main() {
 	router.LoadHTMLGlob("templates/*.html")
 	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 	initCookies(router)
+	router.NoRoute(func(c *gin.Context) {
+		c.HTML(404, "404.html", pageData(c, gin.H{}))
+	})
 
 	public := router.Group("/")
 	addPublicRoutes(public)

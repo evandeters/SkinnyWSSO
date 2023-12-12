@@ -6,7 +6,7 @@ import (
 
 func listUsers(c *gin.Context) {
 
-	users, err := getLdapUsers()
+	users, err := GetLdapUsers()
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Failed to get users."})
 		return
@@ -17,7 +17,7 @@ func listUsers(c *gin.Context) {
 func deleteUser(c *gin.Context) {
 
 	username := c.Param("username")
-	message, err := deleteLdapUser(username)
+	message, err := DeleteLdapUser(username)
 	if err != nil {
 		c.JSON(500, gin.H{"error": message})
 		return

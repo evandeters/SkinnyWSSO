@@ -55,6 +55,8 @@ func TestLoginAndLogout(t *testing.T) {
 
 	cookies := w.Result().Cookies()
 
+	w = httptest.NewRecorder()
+
 	// Create and send logout request
 	logoutReq, _ := http.NewRequest("GET", "/logout", nil)
 
@@ -67,11 +69,7 @@ func TestLoginAndLogout(t *testing.T) {
 	router.ServeHTTP(w, logoutReq)
 
 	// Check the status code is what we expect.
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	// Check the response body is what we expect.
-	expected = expected + `{"message":"Successfully logged out!"}`
-	assert.Equal(t, expected, w.Body.String())
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 }
 
@@ -141,6 +139,58 @@ func TestFailedAdminAuthorization(t *testing.T) {
 	assert.Equal(t, expected, w.Body.String())
 }
 
+func TestLogoutWithoutAuth(t *testing.T) {
+	router := InitializeRouter()
+
+	w := httptest.NewRecorder()
+
+	// Create a request to send to the above route
+	req, err := http.NewRequest("GET", "/logout", nil)
+
+	assert.NoError(t, err)
+
+	router.ServeHTTP(w, req)
+
+	// Check the status code is what we expect.
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	// Check the response body is what we expect.
+	expected := `{"error":"Unauthorized"}`
+	assert.Equal(t, expected, w.Body.String())
+}
+
+func TestGetGroupMembers(t *testing.T) {
+
+	members, err := GetGroupMembers("admins")
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, member := range members {
+		assert.Equal(t, "admin", member)
+	}
+}
+
+func TestAddUserToGroup(t *testing.T) {
+
+	message, err := AddUserToGroup("testuser", "admins")
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, "Successfully added testuser to admins!", message)
+}
+
+func TestRemoveUserFromGroup(t *testing.T) {
+
+	message, err := RemoveUserFromGroup("testuser", "admins")
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, "Successfully removed testuser from admins!", message)
+}
+
 func TestDeleteUser(t *testing.T) {
 
 	router := InitializeRouter()
@@ -173,26 +223,6 @@ func TestDeleteUser(t *testing.T) {
 	expected = expected + `{"message":"Account deleted successfully!"}`
 	assert.Equal(t, expected, w.Body.String())
 
-}
-
-func TestLogoutWithoutAuth(t *testing.T) {
-	router := InitializeRouter()
-
-	w := httptest.NewRecorder()
-
-	// Create a request to send to the above route
-	req, err := http.NewRequest("GET", "/logout", nil)
-
-	assert.NoError(t, err)
-
-	router.ServeHTTP(w, req)
-
-	// Check the status code is what we expect.
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
-
-	// Check the response body is what we expect.
-	expected := `{"error":"Unauthorized"}`
-	assert.Equal(t, expected, w.Body.String())
 }
 
 func InitializeRouter() *gin.Engine {

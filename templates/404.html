@@ -1,0 +1,18 @@
+{{ template "header.html" . }}
+
+<div class="h-100 container-fluid bg-dark-subtle p-5">
+    <h1>404 - Page not found</h1>
+
+    <h2>Back up buddy! You've stuck your nose where it shouldn't have gone.</h2>
+
+    <p>Go back to the <a href="/">home page</a> and try again.</p>
+
+    <audio id="buzzer" controls autoplay aria-hidden="true">
+        <source src="/assets/404.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <hr>
+    <img src="/assets/404.gif" alt="404 - Page not found" class="img-fluid">
+</div>
+
+{{ template "footer.html" }}
