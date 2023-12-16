@@ -183,7 +183,12 @@ func authFromToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in!"})
+	if val, ok := claims["UserInfo"]; ok {
+		userInfo := val.(map[string]interface{})
+		c.JSON(http.StatusOK, gin.H{"Username": userInfo["Username"], "Groups": userInfo["Groups"], "Admin": userInfo["Admin"]})
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token."})
+	}
 }
 
 func isAdmin(c *gin.Context) (bool, error) {
